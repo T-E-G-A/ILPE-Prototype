@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redline — Integrated Legal Practice Environment</title>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-grotesk@500,600,700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#F40E2A;--navy:#111827;--grey:#C2C3C4;
+  --amber:#F29727;--teal:#22A699;--sky:#4BAAC8;--yellow:#F2BE22;
+  --nearblack:#202024;--slate:#4C5760;
+  --warmwhite:#E6DEDD;--lightgrey:#E4E4E4;--offwhite:#EFEFEF;
+  --vb:#1e1e1e;--vs:#252526;--va:#333333;
+  --vborder:#3c3c3c;--vtext:#cccccc;--vdim:#858585;
+  --vhl:#094771;--vstatus:#007acc;
+  --font-d:'Clash Grotesk',sans-serif;
+  --font-b:'Satoshi',sans-serif;
+  --font-m:'Roboto Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--vb);color:var(--vtext);font-family:var(--font-b);font-size:13px;-webkit-font-smoothing:antialiased}
+.titlebar{height:30px;background:#323233;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid #1a1a1a;flex-shrink:0;user-select:none}
+.tb-dots{display:flex;gap:6px}
+.tb-dot{width:12px;height:12px;border-radius:50%}
+.tb-dot.cl{background:#ff5f57}.tb-dot.mn{background:#febc2e}.tb-dot.mx{background:#28c840}
+.tb-logo img{height:16px;width:auto}
+.tb-center{position:absolute;left:50%;transform:translateX(-50%);font-family:var(--font-m);font-size:11px;color:var(--vdim)}
+.menubar{height:30px;background:#3c3c3c;display:flex;align-items:center;padding:0 8px;flex-shrink:0;border-bottom:1px solid #1a1a1a;position:relative;z-index:100}
+.mb-item{padding:4px 10px;font-size:12px;color:var(--vtext);cursor:pointer;border-radius:3px;position:relative;font-family:var(--font-b)}
+.mb-item:hover,.mb-item.on{background:rgba(255,255,255,.1)}
+.dd{position:absolute;top:100%;left:0;background:#2c2c2c;border:1px solid var(--vborder);border-radius:4px;min-width:230px;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.6);display:none;margin-top:2px}
+.dd.show{display:block}
+.dd-item{padding:6px 16px;font-size:12px;color:var(--vtext);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:24px;font-family:var(--font-b)}
+.dd-item:hover{background:var(--vhl)}
+.dd-item .sc{font-family:var(--font-m);font-size:10px;color:var(--vdim)}
+.dd-sep{height:1px;background:var(--vborder);margin:4px 0}
+.dd-pm{color:#fff;font-weight:600}
+.dd-pm:hover{background:var(--red)!important}
+.app{display:flex;flex:1;height:calc(100vh - 82px);overflow:hidden}
+.actbar{width:48px;background:var(--va);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;flex-shrink:0;border-right:1px solid #1a1a1a}
+.ab-item{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:6px;color:var(--vdim);position:relative;transition:color .15s}
+.ab-item:hover{color:#fff}
+.ab-item.on{color:#fff;background:rgba(255,255,255,.08)}
+.ab-item.on::before{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:2px;height:24px;background:var(--red);border-radius:1px}
+.ab-item svg{width:22px;height:22px}
+.ab-tip{position:absolute;left:calc(100% + 10px);background:#1a1a1a;color:#fff;font-family:var(--font-m);font-size:11px;padding:4px 8px;border-radius:4px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;border:1px solid var(--vborder);z-index:300}
+.ab-item:hover .ab-tip{opacity:1}
+.sidebar{width:260px;background:var(--vs);display:flex;flex-direction:column;flex-shrink:0;border-right:1px solid #1a1a1a;overflow:hidden}
+.sb-hdr{padding:10px 16px 6px;font-family:var(--font-m);font-size:10px;color:var(--vdim);letter-spacing:.1em;text-transform:uppercase}
+.sb-body{flex:1;overflow-y:auto}
+.sb-body::-webkit-scrollbar{width:3px}
+.sb-body::-webkit-scrollbar-thumb{background:#424242;border-radius:2px}
+.sb-section{padding:7px 16px 3px;font-family:var(--font-m);font-size:10px;color:var(--vdim);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.sb-empty{padding:4px 16px 8px;font-family:var(--font-m);font-size:11px;color:#3a3a3a;font-style:italic}
+.sb-hint{padding:2px 16px 10px;font-family:var(--font-m);font-size:10px;color:#333;line-height:1.5}
+.sb-hint span{color:var(--sky)}
+.ti{padding:2px 16px 2px 8px;cursor:pointer;display:flex;align-items:center;gap:0;font-size:12px;color:var(--vtext);white-space:nowrap;overflow:hidden}
+.ti:hover{background:rgba(255,255,255,.05)}
+.ti.on{background:var(--vhl)}
+.fd{width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fd-dot{width:7px;height:7px;border-radius:50%;display:none;flex-shrink:0}
+.fd-dot.red{background:rgba(244,14,42,.6);box-shadow:0 0 6px rgba(244,14,42,.5);display:block}
+.fd-dot.amber{background:rgba(242,151,39,.6);box-shadow:0 0 6px rgba(242,151,39,.5);display:block}
+.fd-dot.sky{background:rgba(75,170,200,.55);box-shadow:0 0 6px rgba(75,170,200,.4);display:block}
+.fd-dot.teal{background:rgba(34,166,153,.6);box-shadow:0 0 6px rgba(34,166,153,.4);display:block}
+.ti-icon{width:15px;height:15px;flex-shrink:0;margin-right:6px}
+.ti-name{overflow:hidden;text-overflow:ellipsis}
+.ti-kb{padding:3px 16px 3px 28px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:11px;color:var(--teal);font-family:var(--font-m)}
+.ti-ext{padding:3px 16px 3px 28px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:11px;color:var(--sky);font-family:var(--font-m)}
+.ea{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.tabbar{height:35px;background:#2d2d2d;display:flex;align-items:flex-end;border-bottom:1px solid #1a1a1a;flex-shrink:0;overflow:hidden}
+.tab{height:35px;padding:0 14px;display:flex;align-items:center;gap:7px;font-size:12px;color:var(--vdim);cursor:pointer;border-right:1px solid #1a1a1a;background:#2d2d2d;white-space:nowrap;flex-shrink:0}
+.tab.on{background:var(--vb);color:#fff;border-top:2px solid var(--red)}
+.bc{padding:4px 14px;border-bottom:1px solid var(--vborder);font-family:var(--font-m);font-size:11px;color:var(--vdim);background:#2d2d2d;display:flex;align-items:center;gap:4px;flex-shrink:0}
+.bc span{color:var(--vtext)}.bc .sep{color:#555}
+.sc{display:none;flex:1;overflow:hidden}
+.sc.on{display:flex}
+.tw{flex:1;background:var(--nearblack);display:flex;flex-direction:column;overflow:hidden}
+.t-topbar{background:#2d2d2d;padding:5px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1a1a1a;flex-shrink:0}
+.t-tab{padding:3px 10px;font-family:var(--font-m);font-size:11px;cursor:pointer;border-radius:3px 3px 0 0;color:var(--vdim)}
+.t-tab.on{background:var(--nearblack);color:#fff}
+.tbody{flex:1;padding:14px;overflow-y:auto;font-family:var(--font-m);font-size:12.5px;line-height:1.65;color:var(--warmwhite)}
+.tbody::-webkit-scrollbar{width:3px}
+.tbody::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.tl{display:block;min-height:1em}
+.tp{color:#4ade80}.tc{color:#fff}.td{color:var(--vdim)}
+.tt{color:var(--teal)}.ts{color:var(--sky)}.ta{color:var(--amber)}.tr{color:var(--red)}
+.tbar{display:inline-block;width:130px;height:7px;background:#333;border-radius:3px;overflow:hidden;vertical-align:middle}
+.tbar-f{height:100%;background:var(--teal);border-radius:3px;width:0;transition:width .5s ease}
+.tbar-f.done{width:100%}
+.t-input-row{display:flex;align-items:center;gap:8px;padding:0 14px 14px;flex-shrink:0}
+.t-input{background:transparent;border:none;outline:none;color:#fff;font-family:var(--font-m);font-size:12.5px;flex:1;caret-color:#4ade80}
+.mw{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--vs)}
+.m-search{padding:10px 14px;border-bottom:1px solid var(--vborder);flex-shrink:0}
+.m-search input{width:100%;background:#3c3c3c;border:1px solid var(--vborder);border-radius:4px;padding:5px 10px;font-family:var(--font-b);font-size:12px;color:#fff;outline:none}
+.m-search input:focus{border-color:var(--sky)}
+.m-search input::placeholder{color:var(--vdim)}
+.m-body{flex:1;overflow-y:auto;padding:14px}
+.m-body::-webkit-scrollbar{width:3px}
+.m-body::-webkit-scrollbar-thumb{background:#424242;border-radius:2px}
+.m-section{font-family:var(--font-m);font-size:10px;color:var(--vdim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.ec{background:#2d2d2d;border:1px solid var(--vborder);border-radius:6px;padding:14px;margin-bottom:10px;transition:border-color .15s}
+.ec:hover{border-color:var(--sky)}
+.ec-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.ec-icon{width:42px;height:42px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #2a3a4a}
+.ec-name{font-family:var(--font-d);font-weight:600;font-size:13px;color:#fff;margin-bottom:2px}
+.ec-pub{font-family:var(--font-m);font-size:10px;color:var(--vdim);display:flex;align-items:center;gap:4px}
+.ec-chk{color:var(--teal)}
+.ec-desc{font-size:12px;color:var(--vtext);line-height:1.5;margin-bottom:9px}
+.ec-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+.ec-tag{font-family:var(--font-m);font-size:10px;padding:2px 7px;border-radius:3px;background:#3c3c3c;color:var(--vdim)}
+.risk-row{display:flex;align-items:flex-start;gap:8px;padding:7px 9px;background:#1a1a1a;border-left:3px solid var(--teal);border-radius:3px;margin-bottom:9px}
+.risk-badge{font-family:var(--font-m);font-size:9px;padding:2px 6px;border-radius:3px;letter-spacing:.06em;font-weight:500;flex-shrink:0;margin-top:1px;background:rgba(34,166,153,.15);color:var(--teal);border:1px solid rgba(34,166,153,.3)}
+.risk-desc{font-size:10px;color:var(--vdim);font-family:var(--font-m);line-height:1.5}
+.ec-btn{width:100%;padding:7px;border:none;border-radius:4px;font-family:var(--font-d);font-weight:600;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px}
+.ec-btn.install{background:var(--red);color:#fff}
+.ec-btn.install:hover{background:#c00}
+.ec-btn.installed{background:var(--teal);color:#fff;cursor:default}
+.m-empty{text-align:center;padding:40px;color:var(--vdim)}
+.m-empty p{font-size:12px;margin-bottom:6px}
+.m-empty a{color:var(--sky);font-family:var(--font-m);font-size:10px}
+.ext-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--vb)}
+.ext-ph{padding:10px 16px;border-bottom:1px solid var(--vborder);background:var(--vs);flex-shrink:0;display:flex;align-items:center;gap:8px}
+.ext-pt{font-family:var(--font-d);font-weight:600;font-size:14px;color:#fff}
+.ext-pb{font-family:var(--font-m);font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(75,170,200,.12);color:var(--sky);border:1px solid rgba(75,170,200,.25)}
+.ext-body{flex:1;padding:16px;overflow-y:auto}
+.ext-body::-webkit-scrollbar{width:3px}
+.ext-body::-webkit-scrollbar-thumb{background:#424242;border-radius:2px}
+.scratch-matter{font-family:var(--font-m);font-size:10px;color:var(--vdim);margin-bottom:8px;padding:6px 10px;background:#1a1a1a;border-radius:4px;border-left:2px solid var(--sky)}
+.scratch-matter span{color:var(--sky)}
+.scratch-area{width:100%;background:#1a1a1a;border:1px solid var(--vborder);border-radius:4px;padding:10px;font-family:var(--font-b);font-size:12px;color:#ccc;outline:none;resize:none;min-height:140px;line-height:1.6;margin-bottom:10px}
+.scratch-area:focus{border-color:var(--sky)}
+.scratch-area::placeholder{color:#333}
+.scratch-save{padding:5px 14px;background:var(--red);color:#fff;border:none;border-radius:4px;font-family:var(--font-d);font-weight:600;font-size:11px;cursor:pointer}
+.scratch-save:hover{background:#c00}
+.scratch-notes{margin-top:14px}
+.scratch-note{background:#1a1a1a;border:1px solid var(--vborder);border-radius:4px;padding:9px;margin-bottom:7px}
+.scratch-note-meta{font-family:var(--font-m);font-size:9px;color:var(--vdim);margin-bottom:4px}
+.scratch-note-text{font-size:12px;color:#aaa;line-height:1.5}
+.matw{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.mat-bar{padding:12px 20px;border-bottom:1px solid var(--vborder);display:flex;align-items:center;justify-content:space-between;background:var(--vs);flex-shrink:0}
+.mat-title{font-family:var(--font-d);font-weight:700;font-size:17px;color:#fff}
+.mat-body{flex:1;overflow-y:auto;padding:18px}
+.mat-body::-webkit-scrollbar{width:3px}
+.mat-body::-webkit-scrollbar-thumb{background:#424242;border-radius:2px}
+.mat-card{background:#252526;border:1px solid var(--vborder);border-radius:7px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.mat-card:hover{border-color:var(--sky)}
+.mat-ref{font-family:var(--font-m);font-size:10px;color:var(--vdim);margin-bottom:3px}
+.mat-type{font-family:var(--font-d);font-weight:600;font-size:14px;color:#fff;margin-bottom:7px}
+.mat-meta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:9px}
+.mat-mi{font-family:var(--font-m);font-size:10px;color:var(--vdim)}
+.mat-mi span{color:var(--vtext)}
+.mat-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px}
+.status-badge{font-family:var(--font-m);font-size:9px;padding:2px 8px;border-radius:10px}
+.s-active{background:rgba(34,166,153,.15);color:var(--teal);border:1px solid rgba(34,166,153,.3)}
+.f-badge{font-family:var(--font-m);font-size:9px;padding:2px 6px;border-radius:3px}
+.f-crit{background:rgba(244,14,42,.15);color:var(--red);border:1px solid rgba(244,14,42,.3)}
+.f-sig{background:rgba(242,151,39,.15);color:var(--amber);border:1px solid rgba(242,151,39,.3)}
+.f-clr{background:rgba(34,166,153,.15);color:var(--teal);border:1px solid rgba(34,166,153,.3)}
+.kb-badge{font-family:var(--font-m);font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(75,170,200,.1);color:var(--sky);border:1px solid rgba(75,170,200,.3)}
+.mat-no-kb{display:flex;align-items:flex-start;gap:8px;background:rgba(76,87,96,.08);border:1px solid #2a2a2a;border-radius:5px;padding:10px 12px;font-family:var(--font-m);font-size:10px;color:#444;line-height:1.5;margin-bottom:12px}
+.detw{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.det-hdr{padding:12px 20px;border-bottom:1px solid var(--vborder);background:var(--vs);flex-shrink:0}
+.back-btn{font-family:var(--font-m);font-size:10px;color:var(--sky);cursor:pointer;margin-bottom:5px;display:inline-block}
+.back-btn:hover{text-decoration:underline}
+.det-body{flex:1;overflow-y:auto;padding:18px;display:grid;grid-template-columns:1fr 290px;gap:18px}
+.det-body::-webkit-scrollbar{width:3px}
+.det-body::-webkit-scrollbar-thumb{background:#424242;border-radius:2px}
+.dl-label{font-family:var(--font-m);font-size:10px;color:var(--vdim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:9px}
+.dr{background:#252526;border:1px solid var(--vborder);border-radius:5px;padding:9px 13px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s}
+.dr:hover{border-color:var(--sky)}
+.dr-l{display:flex;align-items:center;gap:8px}
+.dr-name{font-size:12px;color:#fff}
+.dr-meta{font-family:var(--font-m);font-size:10px;color:var(--vdim)}
+.dr-dot{width:8px;height:8px;border-radius:50%;display:none;flex-shrink:0}
+.dr-dot.red{background:rgba(244,14,42,.6);box-shadow:0 0 5px rgba(244,14,42,.5);display:block}
+.dr-dot.amber{background:rgba(242,151,39,.6);box-shadow:0 0 5px rgba(242,151,39,.5);display:block}
+.dr-dot.teal{background:rgba(34,166,153,.6);box-shadow:0 0 5px rgba(34,166,153,.4);display:block}
+.lf-card{background:#1a1a1a;border:1px solid var(--vborder);border-radius:5px;padding:13px;font-family:var(--font-m);font-size:11px;line-height:1.9}
+.lf-label{font-size:9px;color:var(--vdim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px}
+.lf-line{display:flex;justify-content:space-between;gap:10px}
+.lf-pkg{color:var(--sky)}.lf-ver{color:var(--teal)}
+.lf-hash{color:var(--vdim);font-size:9px;margin-top:7px;padding-top:7px;border-top:1px solid var(--vborder)}
+.lf-empty{font-size:10px;color:#2a2a2a;font-style:italic}
+.ed-split{flex:1;display:flex;overflow:hidden}
+.ed-doc{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.ed-toolbar{padding:5px 10px;border-bottom:1px solid var(--vborder);display:flex;align-items:center;gap:3px;flex-shrink:0;background:#2d2d2d}
+.tb-btn{padding:3px 7px;border-radius:3px;font-size:12px;color:var(--vtext);cursor:pointer;background:transparent;border:none;font-family:var(--font-b)}
+.tb-btn:hover{background:rgba(255,255,255,.1)}
+.tb-sep{width:1px;height:13px;background:var(--vborder);margin:0 3px}
+.tb-val{padding:3px 10px;border-radius:3px;font-size:11px;font-family:var(--font-m);cursor:pointer;background:transparent;border:1px solid;transition:all .15s}
+.tb-val.off{color:#3a3a3a;border-color:#2a2a2a;cursor:not-allowed}
+.tb-val.rdy{color:var(--teal);border-color:rgba(34,166,153,.4)}
+.tb-val.rdy:hover{background:rgba(34,166,153,.08)}
+.ed-content{flex:1;overflow-y:auto;padding:26px 42px;font-family:'Times New Roman',serif;font-size:13px;line-height:1.8;color:#d4d4d4;background:var(--vb)}
+.ed-content::-webkit-scrollbar{width:3px}
+.ed-content::-webkit-scrollbar-thumb{background:#424242;border-radius:2px}
+.dc{text-align:center;margin-bottom:16px;font-size:13px}
+.dh1{font-size:13px;font-weight:bold;text-align:center;margin-bottom:4px;text-transform:uppercase}
+.dh2{font-size:13px;font-weight:bold;margin:13px 0 5px}
+.dp{margin-bottom:5px;font-size:13px}
+.di{padding-left:26px}
+.fu-red{border-bottom:2px solid var(--red)}
+.fu-amb{border-bottom:2px solid var(--amber)}
+.fi{display:inline-block;font-family:var(--font-m);font-size:9px;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle;font-weight:500}
+.fi-c{background:rgba(244,14,42,.2);color:var(--red);border:1px solid rgba(244,14,42,.4)}
+.fi-s{background:rgba(242,151,39,.2);color:var(--amber);border:1px solid rgba(242,151,39,.4)}
+.rp{width:315px;border-left:1px solid var(--vborder);background:#1a1a1a;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.rp-hdr{padding:10px 13px;border-bottom:1px solid var(--vborder);flex-shrink:0}
+.rp-title{font-family:var(--font-d);font-weight:700;font-size:15px;color:#fff;margin-bottom:1px}
+.rp-sub{font-family:var(--font-m);font-size:9px;color:var(--sky)}
+.rp-meta{font-family:var(--font-m);font-size:9px;color:var(--vdim);margin-top:5px;padding-top:5px;border-top:1px solid var(--vborder);display:flex;align-items:center;justify-content:space-between}
+.rp-counts{display:flex;gap:5px}
+.rp-body{flex:1;overflow-y:auto;padding:9px}
+.rp-body::-webkit-scrollbar{width:3px}
+.rp-body::-webkit-scrollbar-thumb{background:#252525;border-radius:2px}
+.rp-empty{padding:20px 10px;text-align:center}
+.rp-e-icon{font-size:26px;margin-bottom:9px;opacity:.25}
+.rp-e-title{font-family:var(--font-d);font-weight:600;font-size:13px;color:#444;margin-bottom:5px}
+.rp-e-desc{font-family:var(--font-m);font-size:10px;color:#2a2a2a;line-height:1.6}
+.rp-e-cmd{color:var(--sky)}
+.rp-flag{background:#252526;border:1px solid var(--vborder);border-radius:5px;margin-bottom:7px;overflow:hidden;transition:opacity .4s}
+.rp-flag.dismissed{opacity:.3}
+.rp-flag-hdr{padding:6px 9px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--vborder)}
+.rp-flag-id{font-family:var(--font-m);font-size:9px;color:var(--vdim)}
+.rp-flag-body{padding:8px 9px}
+.rp-flag-title{font-family:var(--font-d);font-weight:600;font-size:12px;color:#fff;margin-bottom:4px}
+.rp-flag-desc{font-size:11px;color:var(--vtext);line-height:1.5;margin-bottom:6px}
+.rp-flag-req{font-size:10px;line-height:1.4;margin-bottom:6px;padding:4px 7px;border-radius:3px;border-left:2px solid}
+.rp-flag-req.cr{color:var(--red);background:rgba(244,14,42,.05);border-left-color:var(--red)}
+.rp-flag-req.sg{color:var(--amber);background:rgba(242,151,39,.05);border-left-color:var(--amber)}
+.rp-flag-kb{font-family:var(--font-m);font-size:9px;color:var(--vdim);margin-bottom:6px;line-height:1.6}
+.rp-flag-kb span{color:var(--sky)}
+.dis-btn{width:100%;padding:4px;background:transparent;border:1px solid var(--vborder);border-radius:3px;font-family:var(--font-m);font-size:9px;color:var(--vdim);cursor:pointer;transition:all .15s}
+.dis-btn:hover{border-color:var(--teal);color:var(--teal)}
+.rp-clear{background:#252526;border:1px solid rgba(34,166,153,.2);border-radius:5px;padding:7px 9px;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.rp-clear-t{font-size:11px;color:var(--teal)}
+.rp-sep{border:none;border-top:1px solid var(--vborder);margin:5px 0}
+.rp-rdy{padding:16px 10px;text-align:center}
+.rp-rdy-title{font-family:var(--font-d);font-weight:600;font-size:13px;color:var(--teal);margin-bottom:5px}
+.rp-rdy-desc{font-family:var(--font-m);font-size:10px;color:#333;line-height:1.6}
+.rp-rdy-cmd{color:var(--sky)}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-ov.show{display:flex}
+.modal{background:#2d2d2d;border:1px solid var(--vborder);border-radius:7px;padding:20px;width:350px;box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.modal-title{font-family:var(--font-d);font-weight:600;font-size:14px;color:#fff;margin-bottom:5px}
+.modal-desc{font-size:11px;color:var(--vdim);margin-bottom:12px;line-height:1.5}
+.modal-input{width:100%;background:#1a1a1a;border:1px solid var(--vborder);border-radius:4px;padding:8px 10px;font-family:var(--font-b);font-size:12px;color:#fff;outline:none;margin-bottom:12px;resize:vertical;min-height:68px}
+.modal-input:focus{border-color:var(--sky)}
+.modal-btns{display:flex;gap:7px;justify-content:flex-end}
+.m-btn{padding:5px 13px;border-radius:4px;font-family:var(--font-d);font-weight:600;font-size:11px;cursor:pointer;border:none}
+.m-cancel{background:#3c3c3c;color:var(--vtext)}.m-cancel:hover{background:#4a4a4a}
+.m-confirm{background:var(--teal);color:#fff}.m-confirm:hover{background:#1a8a7a}
+.toast{position:fixed;bottom:34px;right:18px;background:#252526;border:1px solid var(--vborder);color:#fff;font-family:var(--font-m);font-size:11px;padding:8px 14px;border-radius:5px;z-index:2000;transform:translateY(60px);opacity:0;transition:all .28s cubic-bezier(.4,0,.2,1);box-shadow:0 4px 16px rgba(0,0,0,.5);max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.stbar{height:22px;background:var(--vstatus);display:flex;align-items:center;padding:0 10px;gap:13px;flex-shrink:0}
+.si{font-family:var(--font-m);font-size:11px;color:#fff;opacity:.85;display:flex;align-items:center;gap:4px;cursor:pointer;padding:0 3px;border-radius:2px}
+.si:hover{opacity:1;background:rgba(255,255,255,.1)}
+.si-right{margin-left:auto;display:flex;gap:11px}
+.si-flags{background:rgba(244,14,42,.3);border-radius:2px;display:none}
+.si-pm{opacity:1;font-weight:500}
+.pm{display:none;flex-direction:column;overflow:hidden;background:#0a0a0f;position:fixed;inset:0;z-index:500}
+.pm.vis{display:flex}
+.pm-hdr{padding:12px 20px;border-bottom:1px solid #181820;display:flex;align-items:center;justify-content:space-between;background:#0f0f16;flex-shrink:0}
+.pm-logo{display:flex;align-items:center;gap:9px}
+.pm-logo img{height:20px;width:auto}
+.pm-badge{font-family:var(--font-m);font-size:9px;padding:2px 9px;border-radius:10px;background:rgba(244,14,42,.1);color:var(--red);border:1px solid rgba(244,14,42,.2);letter-spacing:.08em}
+.pm-back{font-family:var(--font-m);font-size:10px;color:var(--sky);cursor:pointer;padding:4px 9px;border:1px solid rgba(75,170,200,.2);border-radius:4px}
+.pm-back:hover{background:rgba(75,170,200,.06)}
+.pm-body{flex:1;display:flex;overflow:hidden}
+.pm-sb{width:230px;border-right:1px solid #181820;padding:13px;overflow-y:auto;flex-shrink:0}
+.pm-ctx-lbl{font-family:var(--font-m);font-size:9px;color:#3a3a3a;letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px}
+.pm-ctx-card{background:#0f0f16;border:1px solid #181820;border-radius:4px;padding:9px;margin-bottom:6px}
+.pm-ctx-key{font-family:var(--font-m);font-size:9px;color:#3a3a3a;margin-bottom:2px}
+.pm-ctx-val{font-size:11px;color:#777}
+.pm-ctx-val.kb{color:var(--sky);font-family:var(--font-m);font-size:10px}
+.pm-prompts{margin-top:11px}
+.pm-pi{background:#0f0f16;border:1px solid #181820;border-radius:4px;padding:7px;margin-bottom:5px;cursor:pointer;transition:border-color .15s}
+.pm-pi:hover{border-color:#2a2a4a}
+.pm-pi p{font-size:10px;color:#444;line-height:1.4}
+.pm-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.pm-chat{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:13px}
+.pm-chat::-webkit-scrollbar{width:3px}
+.pm-chat::-webkit-scrollbar-thumb{background:#1a1a2a;border-radius:2px}
+.pm-sys{align-self:center;background:#0f0f16;border:1px solid #181820;border-radius:5px;padding:9px 13px;color:#333;font-family:var(--font-m);font-size:10px;text-align:center;max-width:55%}
+.pm-ast{align-self:flex-start;background:#0f0f16;border:1px solid #181820;border-radius:0 5px 5px 5px;padding:9px 13px;color:#bbb;font-size:12px;line-height:1.6;max-width:82%}
+.pm-usr{align-self:flex-end;background:#0f1a2a;border:1px solid #1a2a3a;border-radius:5px 0 5px 5px;padding:9px 13px;color:#ccc;font-size:12px;max-width:82%}
+.pm-lbl{font-family:var(--font-m);font-size:9px;color:#333;margin-bottom:4px}
+.pm-ast pre{background:#060610;border:1px solid #181820;border-radius:4px;padding:8px;font-family:var(--font-m);font-size:10px;color:var(--warmwhite);overflow-x:auto;margin-top:6px;line-height:1.5}
+.pm-ia{padding:13px 18px;border-top:1px solid #181820;background:#0f0f16;flex-shrink:0}
+.pm-ir{display:flex;gap:7px;align-items:flex-end}
+.pm-inp{flex:1;background:#060610;border:1px solid #181820;border-radius:6px;padding:8px 11px;font-family:var(--font-b);font-size:12px;color:#bbb;outline:none;resize:none;min-height:38px;max-height:90px}
+.pm-inp:focus{border-color:var(--sky)}
+.pm-inp::placeholder{color:#2a2a2a}
+.pm-send{width:34px;height:34px;background:var(--red);border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pm-send:hover{background:#c00}
+.pm-send svg{width:13px;height:13px;color:#fff}
+.pm-hint{font-family:var(--font-m);font-size:9px;color:#1a1a1a;text-align:center;margin-top:5px}
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="tb-dots"><div class="tb-dot cl"></div><div class="tb-dot mn"></div><div class="tb-dot mx"></div></div>
+    <div class="tb-logo"><img src="https://i.ibb.co/cKYBBghq/logo-larger.png" alt="Redline"></div>
+  </div>
+  <div class="tb-center">Redline — Integrated Legal Practice Environment</div>
+  <div style="width:120px"></div>
+</div>
+
+<div class="menubar">
+  <div class="mb-item" onclick="toggleDD('mf',this)">File
+    <div class="dd" id="mf">
+      <div class="dd-item">New Matter<span class="sc">⌘N</span></div>
+      <div class="dd-item">Open Matter<span class="sc">⌘O</span></div>
+      <div class="dd-sep"></div>
+      <div class="dd-item">Save<span class="sc">⌘S</span></div>
+      <div class="dd-item">Export as DOCX</div>
+      <div class="dd-item">Export as PDF</div>
+    </div>
+  </div>
+  <div class="mb-item" onclick="toggleDD('me',this)">Edit
+    <div class="dd" id="me">
+      <div class="dd-item">Undo<span class="sc">⌘Z</span></div>
+      <div class="dd-item">Redo<span class="sc">⌘⇧Z</span></div>
+      <div class="dd-sep"></div>
+      <div class="dd-item">Find<span class="sc">⌘F</span></div>
+    </div>
+  </div>
+  <div class="mb-item" onclick="toggleDD('mv',this)">View
+    <div class="dd" id="mv">
+      <div class="dd-item">LKM Terminal<span class="sc">⌘`</span></div>
+      <div class="dd-item">Extensions<span class="sc">⌘⇧X</span></div>
+      <div class="dd-item">Matters<span class="sc">⌘⇧M</span></div>
+      <div class="dd-sep"></div>
+      <div class="dd-item dd-pm" onclick="enterPM()">⚡ Switch to Practice Mode<span class="sc">⌘⇧P</span></div>
+    </div>
+  </div>
+  <div class="mb-item" onclick="toggleDD('mg',this)">Go
+    <div class="dd" id="mg">
+      <div class="dd-item">Go to Matter</div>
+      <div class="dd-item">Go to Document</div>
+    </div>
+  </div>
+  <div class="mb-item" onclick="toggleDD('mh',this)">Help
+    <div class="dd" id="mh">
+      <div class="dd-item">Documentation</div>
+      <div class="dd-item">LKM Registry</div>
+      <div class="dd-sep"></div>
+      <div class="dd-item">About Redline</div>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="mainApp">
+  <div class="actbar">
+    <div class="ab-item on" id="act-lkm" onclick="goView('lkm',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      <div class="ab-tip">LKM Terminal</div>
+    </div>
+    <div class="ab-item" id="act-market" onclick="goView('market',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+      <div class="ab-tip">Extensions</div>
+    </div>
+    <div class="ab-item" id="act-matters" onclick="goView('matters',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+      <div class="ab-tip">Matters</div>
+    </div>
+    <div class="ab-item" id="act-editor" onclick="goView('editor',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <div class="ab-tip">Editor</div>
+    </div>
+    <div class="ab-item" id="act-scratchpad" onclick="goView('scratchpad',this)" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <div class="ab-tip">Matter Scratchpad</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sb-hdr">REDLINE ILPE</div>
+    <div class="sb-body">
+      <div class="sb-section">Knowledge Bases</div>
+      <div id="sb-kb-empty" class="sb-empty">None installed</div>
+      <div id="sb-kb-core" style="display:none" class="ti-kb">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="color:var(--teal)"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        @UK-EW/core 1.0.0
+      </div>
+      <div id="sb-kb-imm" style="display:none" class="ti-kb">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="color:var(--teal)"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        @UK-EW/immigration 2.3.1
+      </div>
+      <div id="sb-kb-hint" class="sb-hint">Run <span>lkm install</span> in terminal</div>
+
+      <div class="sb-section">Extensions</div>
+      <div id="sb-ext-empty" class="sb-empty">None installed</div>
+      <div id="sb-ext-scratch" style="display:none" class="ti-ext" onclick="goView('scratchpad',document.getElementById('act-scratchpad'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Matter Scratchpad
+      </div>
+
+      <div class="sb-section">Matters</div>
+      <div class="ti" onclick="goView('matters',document.getElementById('act-matters'))" style="padding-left:4px">
+        <div class="fd"><div class="fd-dot" id="fd-matter"></div></div>
+        <svg class="ti-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+        <span class="ti-name">[REDACTED — Demo]</span>
+      </div>
+      <div class="ti" style="padding-left:20px" onclick="goView('editor',document.getElementById('act-editor'))">
+        <div class="fd"><div class="fd-dot" id="fd-doc1"></div></div>
+        <svg class="ti-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span class="ti-name" style="font-size:11px">Asylum Appeal Skeleton — v3</span>
+      </div>
+      <div class="ti" style="padding-left:20px">
+        <div class="fd"><div class="fd-dot" id="fd-doc2"></div></div>
+        <svg class="ti-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span class="ti-name" style="font-size:11px">Witness Statement</span>
+      </div>
+      <div class="ti" style="padding-left:20px">
+        <div class="fd"><div class="fd-dot" id="fd-doc3"></div></div>
+        <svg class="ti-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span class="ti-name" style="font-size:11px">Bundle Index</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ea">
+    <div class="tabbar">
+      <div class="tab on" id="tab-lkm">LKM Terminal</div>
+      <div class="tab" id="tab-market" style="display:none">Extensions</div>
+      <div class="tab" id="tab-matters" style="display:none">Matters</div>
+      <div class="tab" id="tab-editor" style="display:none">Asylum Appeal Skeleton — v3</div>
+      <div class="tab" id="tab-scratchpad" style="display:none">Matter Scratchpad</div>
+    </div>
+    <div class="bc"><span>Redline</span><span class="sep">›</span><span id="bc-txt">LKM Terminal</span></div>
+
+    <!-- LKM -->
+    <div class="sc on" id="sc-lkm" style="flex-direction:column">
+      <div class="tw">
+        <div class="t-topbar">
+          <div class="t-tab on">TERMINAL</div>
+          <div class="t-tab">OUTPUT</div>
+          <div class="t-tab">PROBLEMS</div>
+        </div>
+        <div class="tbody" id="tbody">
+          <span class="tl"><span class="td"># Redline ILPE — Legal Knowledge Manager</span></span>
+          <span class="tl"><span class="tp">$ </span><span class="tc">lkm --version</span></span>
+          <span class="tl"><span class="tt">lkm v0.4.1</span> <span class="td">(Legal Knowledge Manager)</span></span>
+          <span class="tl"><span class="td">Registry: </span><span class="ts">registry.lkm.legal</span></span>
+          <span class="tl"><span class="td">Node:     </span><span class="ts">UK-EW</span></span>
+          <span class="tl"></span>
+          <span class="tl"><span class="td">No knowledge bases installed. Run </span><span class="ts">lkm install @UK-EW/immigration</span><span class="td"> to get started.</span></span>
+          <span class="tl"></span>
+        </div>
+        <div class="t-input-row">
+          <span class="tp">$&nbsp;</span>
+          <input class="t-input" id="tinput" placeholder="Type a command and press Enter..." autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+    </div>
+
+    <!-- MARKETPLACE -->
+    <div class="sc" id="sc-market" style="flex-direction:column">
+      <div class="mw">
+        <div class="m-search"><input id="msearch" type="text" placeholder="Search extensions..."></div>
+        <div class="m-body">
+          <div id="mkt-res">
+            <div class="m-section">Available Extensions</div>
+            <div class="ec">
+              <div class="ec-head">
+                <div class="ec-icon" style="background:linear-gradient(135deg,#1a2a1a,#1a3a2a)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20" style="color:var(--teal)"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </div>
+                <div style="flex:1">
+                  <div class="ec-name">Matter Scratchpad</div>
+                  <div class="ec-pub">
+                    <svg class="ec-chk" viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.5 6.5l-4 4a.75.75 0 01-1.06 0l-2-2a.75.75 0 011.06-1.06L7 8.94l3.47-3.47a.75.75 0 011.06 1.06z"/></svg>
+                    Redline Community &nbsp;·&nbsp; v1.0.2
+                  </div>
+                </div>
+              </div>
+              <div class="ec-desc">A scratchpad panel linked directly to the active matter. Jot quick notes, observations, and draft thinking without leaving the ILPE. Notes are stored per-matter and persist across sessions.</div>
+              <div class="ec-tags"><span class="ec-tag">Productivity</span><span class="ec-tag">Notes</span><span class="ec-tag">Matter-linked</span></div>
+              <div class="risk-row">
+                <span class="risk-badge">LOW RISK</span>
+                <div class="risk-desc">Stores notes locally within the ILPE. No external data transfer. No API calls. No LKM dependency.</div>
+              </div>
+              <button class="ec-btn install" id="scratch-btn">Install</button>
+            </div>
+            <div class="ec">
+              <div class="ec-head">
+                <div class="ec-icon" style="background:linear-gradient(135deg,#1a1a2a,#2a1a3a)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20" style="color:var(--sky)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div style="flex:1">
+                  <div class="ec-name">Billable Hour Tracker</div>
+                  <div class="ec-pub">
+                    <svg class="ec-chk" viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.5 6.5l-4 4a.75.75 0 01-1.06 0l-2-2a.75.75 0 011.06-1.06L7 8.94l3.47-3.47a.75.75 0 011.06 1.06z"/></svg>
+                    Redline Community &nbsp;·&nbsp; v0.9.1
+                  </div>
+                </div>
+              </div>
+              <div class="ec-desc">Track time directly inside the ILPE. Start, stop, and log billable hours against the active matter. Exports to CSV.</div>
+              <div class="ec-tags"><span class="ec-tag">Billing</span><span class="ec-tag">Time</span><span class="ec-tag">Productivity</span></div>
+              <div class="risk-row">
+                <span class="risk-badge">LOW RISK</span>
+                <div class="risk-desc">Time data stored locally. No external integrations. No LKM dependency.</div>
+              </div>
+              <button class="ec-btn install">Install</button>
+            </div>
+            <div class="ec">
+              <div class="ec-head">
+                <div class="ec-icon" style="background:linear-gradient(135deg,#2a1a1a,#3a1a1a)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20" style="color:var(--amber)"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                </div>
+                <div style="flex:1">
+                  <div class="ec-name">Redline Theme Pack</div>
+                  <div class="ec-pub">
+                    <svg class="ec-chk" viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.5 6.5l-4 4a.75.75 0 01-1.06 0l-2-2a.75.75 0 011.06-1.06L7 8.94l3.47-3.47a.75.75 0 011.06 1.06z"/></svg>
+                    Redline Team &nbsp;·&nbsp; v1.3.0
+                  </div>
+                </div>
+              </div>
+              <div class="ec-desc">Colour themes and redlining highlight styles. Includes High Contrast, Soft Parchment, and Classic Redline modes.</div>
+              <div class="ec-tags"><span class="ec-tag">Theme</span><span class="ec-tag">Appearance</span><span class="ec-tag">Redlining</span></div>
+              <div class="risk-row">
+                <span class="risk-badge">LOW RISK</span>
+                <div class="risk-desc">Visual only. No data access. No LKM dependency.</div>
+              </div>
+              <button class="ec-btn install">Install</button>
+            </div>
+          </div>
+          <div id="mkt-empty" style="display:none">
+            <div class="m-empty"><p id="mkt-empty-txt">No extensions found.</p><a href="#">Build one: docs.redline.legal/build</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRATCHPAD -->
+    <div class="sc" id="sc-scratchpad" style="flex-direction:column">
+      <div class="ext-panel">
+        <div class="ext-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" style="color:var(--teal)"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <div class="ext-pt">Matter Scratchpad</div>
+          <span class="ext-pb">Extension</span>
+        </div>
+        <div class="ext-body">
+          <div class="scratch-matter">Linked to: <span>RDL-2026-0042 — Asylum Appeal — FTT</span></div>
+          <textarea class="scratch-area" id="scratchInput" placeholder="Quick notes for this matter...&#10;&#10;Ideas, observations, questions to follow up..."></textarea>
+          <button class="scratch-save" id="scratch-save-btn">Save Note</button>
+          <div class="scratch-notes" id="scratchNotes"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATTERS -->
+    <div class="sc" id="sc-matters" style="flex-direction:column">
+      <div class="matw">
+        <div class="mat-bar">
+          <div class="mat-title">Matters</div>
+          <div class="kb-badge" id="mat-kb-badge" style="display:none">@UK-EW/immigration 2.3.1 ✓</div>
+        </div>
+        <div class="mat-body">
+          <div id="mat-no-kb" class="mat-no-kb">
+            <span style="font-size:14px">⚠</span>
+            <div>No knowledge base installed — validation unavailable.<br>Run <span style="color:var(--sky)">lkm install @UK-EW/immigration</span> in the terminal.</div>
+          </div>
+          <div class="mat-card" id="mat-card">
+            <div class="mat-ref">REF: RDL-2026-0042 · [REDACTED — Demo]</div>
+            <div class="mat-type">Asylum Appeal — First-tier Tribunal</div>
+            <div class="mat-meta">
+              <div class="mat-mi">Jurisdiction: <span>UK-EW</span></div>
+              <div class="mat-mi">Adviser: <span>A. Osei (OISC Level 3)</span></div>
+              <div class="mat-mi">Opened: <span>12 May 2026</span></div>
+              <div class="mat-mi">Documents: <span>3</span></div>
+            </div>
+            <div class="mat-footer">
+              <div style="display:flex;gap:5px">
+                <span id="mat-no-val" style="font-family:var(--font-m);font-size:9px;color:#333">— Validation unavailable</span>
+                <span class="f-badge f-crit" id="mat-crit" style="display:none">2 Critical</span>
+                <span class="f-badge f-sig" id="mat-sig" style="display:none">1 Significant</span>
+              </div>
+              <span class="status-badge s-active">Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATTER DETAIL -->
+    <div class="sc" id="sc-detail" style="flex-direction:column">
+      <div class="detw">
+        <div class="det-hdr">
+          <div class="back-btn" id="detail-back">← Back to Matters</div>
+          <div class="mat-type">Asylum Appeal — First-tier Tribunal</div>
+          <div class="mat-ref" style="margin-top:3px">REF: RDL-2026-0042 · A. Osei (OISC Level 3) · 12 May 2026</div>
+        </div>
+        <div class="det-body">
+          <div>
+            <div class="dl-label">Documents (3)</div>
+            <div class="dr" id="dr-doc1">
+              <div class="dr-l">
+                <div class="dr-dot" id="dd-doc1"></div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <div><div class="dr-name">Asylum Appeal Skeleton — Draft v3</div><div class="dr-meta">Modified 30 May 2026</div></div>
+              </div>
+              <div style="display:flex;gap:5px">
+                <span id="dd-no-kb" style="font-family:var(--font-m);font-size:9px;color:#2a2a2a">— No KB</span>
+                <span class="f-badge f-crit" id="dd-crit" style="display:none">2</span>
+                <span class="f-badge f-sig" id="dd-sig" style="display:none">1</span>
+              </div>
+            </div>
+            <div class="dr">
+              <div class="dr-l">
+                <div class="dr-dot" id="dd-doc2"></div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <div><div class="dr-name">Witness Statement — Client</div><div class="dr-meta">Modified 28 May 2026</div></div>
+              </div>
+              <span class="f-badge f-sig" id="dd-ws" style="display:none">1</span>
+            </div>
+            <div class="dr">
+              <div class="dr-l">
+                <div class="dr-dot" id="dd-doc3"></div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <div><div class="dr-name">Bundle Index</div><div class="dr-meta">Modified 30 May 2026</div></div>
+              </div>
+              <span class="f-badge f-clr" id="dd-bundle" style="display:none">✓</span>
+            </div>
+          </div>
+          <div>
+            <div class="lf-card">
+              <div class="lf-label">legalmd.lock</div>
+              <div id="lf-empty" class="lf-empty">No knowledge bases installed</div>
+              <div id="lf-core" style="display:none" class="lf-line"><span class="lf-pkg">@UK-EW/core</span><span class="lf-ver">1.0.0</span></div>
+              <div id="lf-imm" style="display:none" class="lf-line"><span class="lf-pkg">@UK-EW/immigration</span><span class="lf-ver">2.3.1</span></div>
+              <div id="lf-hash" style="display:none" class="lf-hash">Generated: 30 May 2026<br>sha256: a4f2c8e91b3d...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR -->
+    <div class="sc" id="sc-editor">
+      <div class="ed-split">
+        <div class="ed-doc">
+          <div class="ed-toolbar">
+            <button class="tb-btn"><b>B</b></button>
+            <button class="tb-btn"><i>I</i></button>
+            <button class="tb-btn"><u>U</u></button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn">H1</button>
+            <button class="tb-btn">H2</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn">¶</button>
+            <div class="tb-sep"></div>
+            <button class="tb-val off" id="val-btn">▶ Validate</button>
+          </div>
+          <div class="ed-content">
+            <div class="dc">IN THE FIRST-TIER TRIBUNAL<br>IMMIGRATION AND ASYLUM CHAMBER</div>
+            <div class="dc">Appeal Number: [REDACTED]</div>
+            <div class="dc" style="margin-bottom:18px">BETWEEN:<br><br>[APPELLANT NAME REDACTED]<br><em>Appellant</em><br><br>— and —<br><br>THE SECRETARY OF STATE FOR THE HOME DEPARTMENT<br><em>Respondent</em></div>
+            <div class="dh1">SKELETON ARGUMENT ON BEHALF OF THE APPELLANT</div>
+            <div class="dh2">1. INTRODUCTION</div>
+            <div class="dp di">1.1 The Appellant is a national of [COUNTRY REDACTED] who arrived in the United Kingdom on [DATE REDACTED] and claimed asylum on the same date.</div>
+            <div class="dp di">1.2 The Respondent refused the Appellant's protection claim by decision dated [DATE REDACTED]. The Appellant appeals pursuant to section 82 of the Nationality, Immigration and Asylum Act 2002.</div>
+            <div class="dh2">2. FACTUAL BACKGROUND</div>
+            <div class="dp di">2.1 The Appellant's claim is based on a well-founded fear of persecution by reason of [GROUND REDACTED] within the meaning of the 1951 Refugee Convention.</div>
+            <div class="dp di">2.2 The Appellant relies on the witness statement filed with these proceedings, which should be read as incorporated herein.</div>
+            <div class="dh2">3. LEGAL FRAMEWORK</div>
+            <div class="dp di" id="doc-31">3.1 The Appellant seeks recognition as a refugee pursuant to section 83A of the Nationality, Immigration and Asylum Act 2002 and the Refugee or Person in Need of International Protection (Qualification) Regulations 2006.</div>
+            <div class="dp di" id="doc-32">3.2 The burden of proof lies on the Appellant to demonstrate that there is a reasonable likelihood of persecution upon return. No country guidance citation has been included.</div>
+            <div class="dh2">4. GROUNDS OF APPEAL</div>
+            <div class="dp di">4.1 The Respondent erred in her assessment of the Appellant's credibility.</div>
+            <div class="dp di" id="doc-42">4.2 The Respondent failed to have adequate regard to the background country evidence.</div>
+            <div class="dh2">5. RELIEF SOUGHT</div>
+            <div class="dp di">5.1 The Appellant respectfully invites the Tribunal to allow the appeal and recognise the Appellant as a refugee.</div>
+            <div class="dp" style="margin-top:26px">Settled by: [ADVISER NAME REDACTED]<br>Date: [DATE REDACTED]</div>
+          </div>
+        </div>
+        <div class="rp">
+          <div class="rp-hdr">
+            <div class="rp-title">The Read</div>
+            <div class="rp-sub" id="rp-sub">No knowledge base installed</div>
+            <div class="rp-meta">
+              <span id="rp-time">—</span>
+              <div class="rp-counts" id="rp-counts" style="display:none">
+                <span class="f-badge f-crit" id="rp-crit">2 Critical</span>
+                <span class="f-badge f-sig" id="rp-sig">1 Significant</span>
+              </div>
+            </div>
+          </div>
+          <div class="rp-body">
+            <div id="rp-empty" class="rp-empty">
+              <div class="rp-e-icon">⚖</div>
+              <div class="rp-e-title">No Knowledge Base Installed</div>
+              <div class="rp-e-desc">Install a knowledge base to enable validation and The Read.<br><br><span class="rp-e-cmd">lkm install @UK-EW/immigration</span></div>
+            </div>
+            <div id="rp-ready" style="display:none" class="rp-rdy">
+              <div class="rp-rdy-title">Knowledge Base Ready</div>
+              <div class="rp-rdy-desc">@UK-EW/immigration 2.3.1 installed.<br><br>Click <span class="rp-rdy-cmd">▶ Validate</span> in the toolbar to run The Read.</div>
+            </div>
+            <div id="rp-flags" style="display:none">
+              <hr class="rp-sep">
+              <div class="rp-flag" id="flag001">
+                <div class="rp-flag-hdr"><span class="f-badge f-crit">CRITICAL</span><span class="rp-flag-id">FLAG 001</span></div>
+                <div class="rp-flag-body">
+                  <div class="rp-flag-title">Country guidance citation absent</div>
+                  <div class="rp-flag-desc">Section 3 references the legal framework but contains no citation to the applicable Upper Tribunal country guidance for the country of origin.</div>
+                  <div class="rp-flag-req cr">Required: Cite the applicable country guidance by name, neutral citation, and promulgation date.</div>
+                  <div class="rp-flag-kb">KB ref: <span>@UK-EW/immigration 2.3.1</span> → UT country guidance index<br>Updated: <span>14 May 2026</span></div>
+                  <button class="dis-btn" id="dis-btn-001">DISMISS WITH REASON</button>
+                </div>
+              </div>
+              <div class="rp-flag" id="flag002">
+                <div class="rp-flag-hdr"><span class="f-badge f-crit">CRITICAL</span><span class="rp-flag-id">FLAG 002</span></div>
+                <div class="rp-flag-body">
+                  <div class="rp-flag-title">Qualification Regulations reference outdated</div>
+                  <div class="rp-flag-desc">Section 3.1 cites the Qualification Regulations 2006, which were revoked following the Nationality and Borders Act 2022.</div>
+                  <div class="rp-flag-req cr">Required: Update to reflect the Nationality and Borders Act 2022 and HC 590.</div>
+                  <div class="rp-flag-kb">KB ref: <span>@UK-EW/immigration 2.3.1</span> → Nationality and Borders Act 2022, s.12<br>Updated: <span>30 May 2026</span></div>
+                  <button class="dis-btn" id="dis-btn-002">DISMISS WITH REASON</button>
+                </div>
+              </div>
+              <div class="rp-flag" id="flag003">
+                <div class="rp-flag-hdr"><span class="f-badge f-sig">SIGNIFICANT</span><span class="rp-flag-id">FLAG 003</span></div>
+                <div class="rp-flag-body">
+                  <div class="rp-flag-title">Grounds of appeal not particularised</div>
+                  <div class="rp-flag-desc">Section 4 states grounds at a high level of generality. FTT best practice requires sufficient particularisation.</div>
+                  <div class="rp-flag-req sg">Required: Expand each ground with reference to the refusal letter and evidence relied upon.</div>
+                  <div class="rp-flag-kb">KB ref: <span>@UK-EW/immigration 2.3.1</span> → FTT Procedure Rules r.2<br>Updated: <span>30 May 2026</span></div>
+                  <button class="dis-btn" id="dis-btn-003">DISMISS WITH REASON</button>
+                </div>
+              </div>
+              <hr class="rp-sep">
+              <div class="rp-clear">
+                <span style="color:var(--teal);font-size:12px">✓</span>
+                <div class="rp-clear-t">Section 2 — Factual Background: Consistent with LegalMD Precedent for asylum appeal skeletons.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRACTICE MODE -->
+<div class="pm" id="pm">
+  <div class="pm-hdr">
+    <div class="pm-logo">
+      <img src="https://i.ibb.co/cKYBBghq/logo-larger.png" alt="Redline">
+      <span class="pm-badge">PRACTICE MODE</span>
+    </div>
+    <div class="pm-back" id="pm-back-btn">← Back to ILPE</div>
+  </div>
+  <div class="pm-body">
+    <div class="pm-sb">
+      <div class="pm-ctx-lbl">Context</div>
+      <div class="pm-ctx-card"><div class="pm-ctx-key">Active Matter</div><div class="pm-ctx-val">Asylum Appeal — FTT</div></div>
+      <div class="pm-ctx-card"><div class="pm-ctx-key">Knowledge Bases</div><div class="pm-ctx-val kb" id="pm-kb">None installed</div></div>
+      <div class="pm-ctx-card"><div class="pm-ctx-key">Extensions</div><div class="pm-ctx-val" id="pm-ext">None installed</div></div>
+      <div class="pm-ctx-card"><div class="pm-ctx-key">Open Flags</div><div class="pm-ctx-val" id="pm-flags">— Validation unavailable</div></div>
+      <div class="pm-prompts">
+        <div class="pm-ctx-lbl" style="margin-top:10px">Suggested</div>
+        <div class="pm-pi" id="pm-p1"><p>Build a LegalMD Precedent for employment tribunal claims</p></div>
+        <div class="pm-pi" id="pm-p2"><p>Scaffold a criminal law extension</p></div>
+        <div class="pm-pi" id="pm-p3"><p>Show RLPN JSON schema for this matter</p></div>
+      </div>
+    </div>
+    <div class="pm-main">
+      <div class="pm-chat" id="pmchat">
+        <div class="pm-sys">Practice Mode — Legal Technologist Interface<br>Build extensions · Scaffold Precedents · Query the LKM registry</div>
+        <div class="pm-ast"><div class="pm-lbl">Redline</div>Welcome to Practice Mode. I have access to your current matter context and installed knowledge bases.<br><br>What would you like to build?</div>
+      </div>
+      <div class="pm-ia">
+        <div class="pm-ir">
+          <textarea class="pm-inp" id="pminput" placeholder="Ask Redline to build an extension, scaffold a Precedent, generate RLPN schema..." rows="1"></textarea>
+          <button class="pm-send" id="pm-send-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+        </div>
+        <div class="pm-hint">Practice Mode is for legal technologists building on the Redline platform</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="stbar">
+  <div class="si">UK-EW</div>
+  <div class="si" id="si-lkm">lkm v0.4.1</div>
+  <div class="si" id="si-kb" style="color:rgba(255,255,255,.3)">No KB</div>
+  <div class="si-right">
+    <div class="si si-flags" id="si-flags">⚑ <span id="si-fc">3</span> flags</div>
+    <div class="si">UTF-8</div>
+    <div class="si">Legal Document</div>
+    <div class="si si-pm" id="si-pm-btn">⚡ Practice Mode</div>
+  </div>
+</div>
+
+<div class="modal-ov" id="modal-ov">
+  <div class="modal">
+    <div class="modal-title">Dismiss Flag</div>
+    <div class="modal-desc">Provide a reason. This will be recorded in the matter audit trail.</div>
+    <textarea class="modal-input" id="modal-input" placeholder="e.g. Country guidance citation will be added in final draft..."></textarea>
+    <div class="modal-btns">
+      <button class="m-btn m-cancel" id="modal-cancel">Cancel</button>
+      <button class="m-btn m-confirm" id="modal-confirm">Confirm Dismissal</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var S = { kb:false, ext:false, validated:false, crit:2, sig:1, pendingFlag:null, pendingCrit:false, scratchNotes:[] };
+
+var bcMap = { lkm:'LKM Terminal', market:'Extensions Marketplace', matters:'Matters', detail:'Matters › RDL-2026-0042', editor:'Matters › RDL-2026-0042 › Asylum Appeal', scratchpad:'Extensions › Matter Scratchpad' };
+var tabMap = { lkm:'tab-lkm', market:'tab-market', matters:'tab-matters', detail:'tab-matters', editor:'tab-editor', scratchpad:'tab-scratchpad' };
+
+function goView(v, actEl) {
+  var screens = document.querySelectorAll('.sc');
+  for (var i = 0; i < screens.length; i++) screens[i].classList.remove('on');
+  var acts = document.querySelectorAll('.ab-item');
+  for (var i = 0; i < acts.length; i++) acts[i].classList.remove('on');
+  var tabs = document.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) { tabs[i].style.display = 'none'; tabs[i].classList.remove('on'); }
+  var scr = document.getElementById('sc-' + v);
+  if (scr) scr.classList.add('on');
+  if (actEl) actEl.classList.add('on');
+  var tid = tabMap[v];
+  if (tid) { var t = document.getElementById(tid); if (t) { t.style.display = 'flex'; t.classList.add('on'); } }
+  var bc = document.getElementById('bc-txt');
+  if (bc) bc.textContent = bcMap[v] || v;
+  closeDD();
+}
+
+function toggleDD(id, el) {
+  var d = document.getElementById(id);
+  var wasOpen = d.classList.contains('show');
+  closeDD();
+  if (!wasOpen) { d.classList.add('show'); el.classList.add('on'); }
+}
+function closeDD() {
+  var dds = document.querySelectorAll('.dd');
+  for (var i = 0; i < dds.length; i++) dds[i].classList.remove('show');
+  var mbs = document.querySelectorAll('.mb-item');
+  for (var i = 0; i < mbs.length; i++) mbs[i].classList.remove('on');
+}
+document.addEventListener('click', function(e) { if (!e.target.closest('.mb-item')) closeDD(); });
+
+var tbody = document.getElementById('tbody');
+var tinput = document.getElementById('tinput');
+
+function tLine(html, delay) {
+  return new Promise(function(r) {
+    setTimeout(function() {
+      var s = document.createElement('span');
+      s.className = 'tl'; s.innerHTML = html;
+      tbody.appendChild(s); tbody.scrollTop = tbody.scrollHeight; r();
+    }, delay);
+  });
+}
+
+async function runInstall() {
+  tinput.disabled = true;
+  var lines = [
+    [60,  '<span class="td">Resolving @UK-EW/immigration@latest...</span>'],
+    [500, '<span class="tt">Found @UK-EW/immigration@2.3.1</span>'],
+    [200, ''],
+    [80,  '<span class="td">Resolving dependencies...</span>'],
+    [100, '<span class="td">  @UK-EW/core@1.0.0</span>'],
+    [80,  '<span class="td">  @UK-EW/immigration@2.3.1</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Immigration Act 1971 (as amended)</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Nationality, Immigration and Asylum Act 2002</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Immigration, Asylum and Nationality Act 2006</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Borders, Citizenship and Immigration Act 2009</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Immigration Act 2014</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Immigration Act 2016</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Nationality and Borders Act 2022</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Illegal Migration Act 2023</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Statement of Changes HC 590 (Immigration Rules)</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Upper Tribunal country guidance \u2014 current index</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Court of Appeal immigration judgments \u2014 rolling 24 months</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Home Office asylum policy instructions \u2014 current</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 Home Office country policy and information notes</span>'],
+    [70,  '<span class="td">    \u251C\u2500\u2500 First-tier Tribunal procedure rules</span>'],
+    [70,  '<span class="td">    \u2514\u2500\u2500 4 LegalMD Precedents for UK-EW/immigration</span>'],
+    [200, ''],
+    [80,  '<span class="td">Downloading knowledge bases...</span>']
+  ];
+  for (var i = 0; i < lines.length; i++) await tLine(lines[i][1], lines[i][0]);
+
+  await new Promise(function(r) {
+    setTimeout(function() {
+      var s = document.createElement('span'); s.className = 'tl';
+      s.innerHTML = '<span class="td">[@UK-EW/core@1.0.0]         </span><span class="tbar"><span class="tbar-f" id="bf1"></span></span><span class="td" id="bs1"> downloading...</span>';
+      tbody.appendChild(s); tbody.scrollTop = tbody.scrollHeight;
+      setTimeout(function() { var f=document.getElementById('bf1'); if(f) f.classList.add('done'); var b=document.getElementById('bs1'); if(b) b.textContent=' done'; }, 80);
+      r();
+    }, 200);
+  });
+
+  await new Promise(function(r) {
+    setTimeout(function() {
+      var s = document.createElement('span'); s.className = 'tl';
+      s.innerHTML = '<span class="td">[@UK-EW/immigration@2.3.1]  </span><span class="tbar"><span class="tbar-f" id="bf2"></span></span><span class="td" id="bs2"> downloading...</span>';
+      tbody.appendChild(s); tbody.scrollTop = tbody.scrollHeight;
+      setTimeout(function() { var f=document.getElementById('bf2'); if(f) f.classList.add('done'); var b=document.getElementById('bs2'); if(b) b.textContent=' done'; }, 600);
+      r();
+    }, 280);
+  });
+
+  var final = [
+    [800, ''], [80, '<span class="td">Generating legalmd.lock...</span>'], [500, ''],
+    [80,  '<span class="tt">Added 2 knowledge bases. Audit: 0 vulnerabilities.</span>'], [200, ''],
+    [80,  '<span class="td">Installed:</span>'],
+    [70,  '<span class="ts">  @UK-EW/core          </span><span class="tt"> 1.0.0</span>'],
+    [70,  '<span class="ts">  @UK-EW/immigration   </span><span class="tt"> 2.3.1</span>'],
+    [200, ''],
+    [80,  '<span class="td">Run </span><span class="ts">lkm list</span><span class="td"> to see installed knowledge bases.</span>'],
+    [70,  '<span class="td">Run </span><span class="ts">lkm outdated</span><span class="td"> to check for updates.</span>'],
+    [200, '']
+  ];
+  for (var i = 0; i < final.length; i++) await tLine(final[i][1], final[i][0]);
+
+  S.kb = true; activateKB();
+  tinput.disabled = false; tinput.focus();
+  showToast('@UK-EW/immigration 2.3.1 \u2014 knowledge base installed');
+}
+
+function activateKB() {
+  document.getElementById('sb-kb-empty').style.display = 'none';
+  document.getElementById('sb-kb-core').style.display = 'flex';
+  document.getElementById('sb-kb-imm').style.display = 'flex';
+  document.getElementById('sb-kb-hint').style.display = 'none';
+  document.getElementById('fd-matter').className = 'fd-dot amber';
+  document.getElementById('fd-doc1').className = 'fd-dot amber';
+  document.getElementById('fd-doc2').className = 'fd-dot amber';
+  document.getElementById('fd-doc3').className = 'fd-dot sky';
+  document.getElementById('si-kb').textContent = '@UK-EW/immigration 2.3.1';
+  document.getElementById('si-kb').style.color = 'var(--teal)';
+  document.getElementById('mat-no-kb').style.display = 'none';
+  document.getElementById('mat-kb-badge').style.display = 'flex';
+  document.getElementById('mat-no-val').style.display = 'none';
+  document.getElementById('lf-empty').style.display = 'none';
+  document.getElementById('lf-core').style.display = 'flex';
+  document.getElementById('lf-imm').style.display = 'flex';
+  document.getElementById('lf-hash').style.display = 'block';
+  document.getElementById('rp-sub').textContent = 'Powered by @UK-EW/immigration 2.3.1';
+  document.getElementById('rp-empty').style.display = 'none';
+  document.getElementById('rp-ready').style.display = 'block';
+  document.getElementById('rp-time').textContent = 'Ready to validate';
+  document.getElementById('val-btn').className = 'tb-val rdy';
+  document.getElementById('pm-kb').textContent = '@UK-EW/core 1.0.0\n@UK-EW/immigration 2.3.1';
+  document.getElementById('pm-flags').textContent = 'Run validate to check';
+}
+
+async function runList() {
+  await tLine('', 50);
+  var rows = S.kb
+    ? ['<span class="td">Installed knowledge bases (2)</span>', '',
+       '<span class="ts">@UK-EW/core          </span><span class="tt"> 1.0.0</span>  <span class="td">\u2713 up to date</span>',
+       '<span class="ts">@UK-EW/immigration   </span><span class="tt"> 2.3.1</span>  <span class="td">\u2713 up to date</span>',
+       '', '<span class="td">Last updated: 30 May 2026 \u00B7 Lockfile: legalmd.lock (sha256: a4f2c8...)</span>']
+    : ['<span class="td">No knowledge bases installed.</span>',
+       '<span class="td">Run </span><span class="ts">lkm install @UK-EW/immigration</span><span class="td"> to get started.</span>'];
+  for (var i = 0; i < rows.length; i++) await tLine(rows[i], 65);
+  await tLine('', 65);
+}
+
+async function runOutdated() {
+  await tLine('', 50);
+  if (S.kb) {
+    await tLine('<span class="tt">All knowledge bases are up to date.</span>', 200);
+    await tLine('<span class="td">Last checked: 30 May 2026 at 09:14 BST</span>', 80);
+  } else {
+    await tLine('<span class="td">No knowledge bases installed.</span>', 200);
+  }
+  await tLine('', 80);
+}
+
+tinput.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  var v = tinput.value.trim(); tinput.value = '';
+  var l = document.createElement('span'); l.className = 'tl';
+  l.innerHTML = '<span class="tp">$ </span><span class="tc">' + v + '</span>';
+  tbody.appendChild(l); tbody.scrollTop = tbody.scrollHeight;
+  if (v === 'lkm install @UK-EW/immigration') runInstall();
+  else if (v === 'lkm list') runList();
+  else if (v === 'lkm outdated') runOutdated();
+  else if (v === '') tLine('', 40);
+  else { tLine('<span class="tr">Command not recognised.</span> Run <span class="ts">lkm help</span> for available commands.', 80); tLine('', 80); }
+});
+
+document.getElementById('msearch').addEventListener('input', function() {
+  var q = this.value.toLowerCase();
+  var show = !q || q.includes('scratch') || q.includes('note') || q.includes('bill') || q.includes('time') || q.includes('theme') || q.includes('redline') || q.includes('matter') || q.includes('hour') || q.includes('produc') || q.includes('appear');
+  document.getElementById('mkt-res').style.display = show ? 'block' : 'none';
+  document.getElementById('mkt-empty').style.display = show ? 'none' : 'block';
+  if (!show) document.getElementById('mkt-empty-txt').textContent = 'No extensions found for "' + this.value + '"';
+});
+
+document.getElementById('scratch-btn').addEventListener('click', function() {
+  var btn = this;
+  if (btn.classList.contains('installed')) return;
+  btn.textContent = 'Installing...'; btn.disabled = true;
+  setTimeout(function() {
+    btn.textContent = 'Installed'; btn.className = 'ec-btn installed';
+    S.ext = true;
+    document.getElementById('sb-ext-empty').style.display = 'none';
+    document.getElementById('sb-ext-scratch').style.display = 'flex';
+    document.getElementById('act-scratchpad').style.display = 'flex';
+    document.getElementById('tab-scratchpad').style.display = 'flex';
+    document.getElementById('pm-ext').textContent = 'Matter Scratchpad v1.0.2';
+    showToast('Matter Scratchpad installed \u2014 available in the activity bar');
+  }, 1000);
+});
+
+document.getElementById('scratch-save-btn').addEventListener('click', function() {
+  var txt = document.getElementById('scratchInput').value.trim();
+  if (!txt) return;
+  var t = new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+  S.scratchNotes.unshift({text: txt, time: t});
+  document.getElementById('scratchInput').value = '';
+  var c = document.getElementById('scratchNotes');
+  c.innerHTML = S.scratchNotes.map(function(n) {
+    return '<div class="scratch-note"><div class="scratch-note-meta">RDL-2026-0042 \u00B7 Today ' + n.time + '</div><div class="scratch-note-text">' + n.text + '</div></div>';
+  }).join('');
+  showToast('Note saved to matter');
+});
+
+document.getElementById('mat-card').addEventListener('click', function() {
+  goView('detail', document.getElementById('act-matters'));
+});
+
+document.getElementById('detail-back').addEventListener('click', function() {
+  goView('matters', document.getElementById('act-matters'));
+});
+
+document.getElementById('dr-doc1').addEventListener('click', function() {
+  goView('editor', document.getElementById('act-editor'));
+});
+
+document.getElementById('val-btn').addEventListener('click', function() {
+  if (!S.kb) return;
+  var btn = this;
+  btn.textContent = '\u23F3 Validating...'; btn.className = 'tb-val off';
+  setTimeout(function() {
+    btn.textContent = '\u25B6 Validate'; btn.className = 'tb-val rdy';
+    S.validated = true;
+    document.getElementById('doc-31').innerHTML = '3.1 The Appellant seeks recognition as a refugee pursuant to <span class="fu-red">section 83A of the Nationality, Immigration and Asylum Act 2002 and the Refugee or Person in Need of International Protection (Qualification) Regulations 2006</span><span class="fi fi-c">C</span>.';
+    document.getElementById('doc-32').innerHTML = '3.2 The burden of proof lies on the Appellant to demonstrate that there is a reasonable likelihood of persecution upon return. <span class="fu-red">No country guidance citation has been included.</span><span class="fi fi-c">C</span>';
+    document.getElementById('doc-42').innerHTML = '4.2 <span class="fu-amb">The Respondent failed to have adequate regard to the background country evidence.</span><span class="fi fi-s">S</span>';
+    document.getElementById('rp-ready').style.display = 'none';
+    document.getElementById('rp-flags').style.display = 'block';
+    document.getElementById('rp-time').textContent = '30 May 2026 at 09:31 BST';
+    document.getElementById('rp-counts').style.display = 'flex';
+    document.getElementById('mat-crit').style.display = 'inline';
+    document.getElementById('mat-sig').style.display = 'inline';
+    document.getElementById('dd-no-kb').style.display = 'none';
+    document.getElementById('dd-crit').style.display = 'inline';
+    document.getElementById('dd-sig').style.display = 'inline';
+    document.getElementById('dd-ws').style.display = 'inline';
+    document.getElementById('dd-bundle').style.display = 'inline';
+    document.getElementById('fd-matter').className = 'fd-dot red';
+    document.getElementById('fd-doc1').className = 'fd-dot red';
+    document.getElementById('fd-doc2').className = 'fd-dot amber';
+    document.getElementById('fd-doc3').className = 'fd-dot teal';
+    document.getElementById('dd-doc1').className = 'dr-dot red';
+    document.getElementById('dd-doc2').className = 'dr-dot amber';
+    document.getElementById('dd-doc3').className = 'dr-dot teal';
+    document.getElementById('si-flags').style.display = 'flex';
+    document.getElementById('pm-flags').textContent = S.crit + ' Critical \u00B7 ' + S.sig + ' Significant';
+    showToast('Validation complete \u2014 3 flags found');
+  }, 1400);
+});
+
+function setupDismiss(btnId, flagId, isCrit) {
+  document.getElementById(btnId).addEventListener('click', function() {
+    S.pendingFlag = flagId; S.pendingCrit = isCrit;
+    document.getElementById('modal-input').value = '';
+    document.getElementById('modal-ov').classList.add('show');
+    setTimeout(function() { document.getElementById('modal-input').focus(); }, 50);
+  });
+}
+setupDismiss('dis-btn-001', 'flag001', true);
+setupDismiss('dis-btn-002', 'flag002', true);
+setupDismiss('dis-btn-003', 'flag003', false);
+
+document.getElementById('modal-cancel').addEventListener('click', function() {
+  document.getElementById('modal-ov').classList.remove('show');
+});
+
+document.getElementById('modal-confirm').addEventListener('click', function() {
+  var r = document.getElementById('modal-input').value.trim();
+  if (!r) { document.getElementById('modal-input').style.borderColor = 'var(--red)'; return; }
+  document.getElementById('modal-input').style.borderColor = '';
+  document.getElementById('modal-ov').classList.remove('show');
+  document.getElementById(S.pendingFlag).classList.add('dismissed');
+  if (S.pendingCrit) S.crit = Math.max(0, S.crit - 1);
+  else S.sig = Math.max(0, S.sig - 1);
+  document.getElementById('rp-crit').textContent = S.crit + ' Critical';
+  document.getElementById('rp-sig').textContent = S.sig + ' Significant';
+  document.getElementById('mat-crit').textContent = S.crit + ' Critical';
+  document.getElementById('mat-sig').textContent = S.sig + ' Significant';
+  document.getElementById('dd-crit').textContent = S.crit;
+  document.getElementById('dd-sig').textContent = S.sig;
+  var t = S.crit + S.sig;
+  document.getElementById('si-fc').textContent = t;
+  document.getElementById('pm-flags').textContent = S.crit + ' Critical \u00B7 ' + S.sig + ' Significant';
+  if (t === 0) { document.getElementById('fd-matter').className = 'fd-dot teal'; document.getElementById('fd-doc1').className = 'fd-dot teal'; }
+  else if (S.crit > 0) { document.getElementById('fd-matter').className = 'fd-dot red'; document.getElementById('fd-doc1').className = 'fd-dot red'; }
+  else { document.getElementById('fd-matter').className = 'fd-dot amber'; document.getElementById('fd-doc1').className = 'fd-dot amber'; }
+  showToast('Flag dismissed and recorded in audit trail');
+});
+
+function enterPM() { document.getElementById('pm').classList.add('vis'); closeDD(); }
+function exitPM() { document.getElementById('pm').classList.remove('vis'); }
+
+document.getElementById('pm-back-btn').addEventListener('click', exitPM);
+document.getElementById('si-pm-btn').addEventListener('click', enterPM);
+
+var pmR = {
+  default: 'Here\'s a scaffold to get started:\n```yaml\n# LegalMD Precedent Scaffold\nname: uk-ew/employment/tribunal\nversion: 0.1.0\njurisdiction: UK-EW\n\nmandatory-clauses:\n  - claimant-details\n  - respondent-details\n  - grounds-of-claim\n  - remedy-sought\n\ndependencies:\n  - "@UK-EW/core": ">=1.0.0"\n```\nWant me to expand the clause specifications?',
+  rlpn: 'Here\'s the RLPN JSON schema for this matter:\n```json\n{\n  "matter": {\n    "id": "RDL-2026-0042",\n    "type": "asylum-appeal",\n    "jurisdiction": "UK-EW",\n    "kb": ["@UK-EW/immigration@2.3.1"],\n    "documents": [\n      {"id": "doc-001", "type": "appeal-skeleton",\n       "relationship": "governing", "flags": 3}\n    ]\n  }\n}```',
+  criminal: 'Scaffolding a criminal law extension:\n```yaml\nname: uk-ew/criminal/guilty-plea\nversion: 0.1.0\njurisdiction: UK-EW\n\nmandatory-clauses:\n  - defendant-details\n  - offence-basis\n  - factual-basis\n  - mitigation-summary\n```\nThis extension bundles its own templates and has no LKM dependency. Ready to publish to the marketplace.'
+};
+
+function sendPm() {
+  var inp = document.getElementById('pminput');
+  var txt = inp.value.trim(); if (!txt) return;
+  inp.value = '';
+  var chat = document.getElementById('pmchat');
+  var um = document.createElement('div'); um.className = 'pm-usr';
+  um.innerHTML = '<div class="pm-lbl">You</div>' + txt;
+  chat.appendChild(um); chat.scrollTop = chat.scrollHeight;
+  setTimeout(function() {
+    var lower = txt.toLowerCase();
+    var resp = pmR.default;
+    if (lower.includes('rlpn') || lower.includes('json') || lower.includes('schema')) resp = pmR.rlpn;
+    if (lower.includes('criminal')) resp = pmR.criminal;
+    var am = document.createElement('div'); am.className = 'pm-ast';
+    var fmt = resp.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre>$2</pre>').replace(/\n/g, '<br>');
+    am.innerHTML = '<div class="pm-lbl">Redline</div>' + fmt;
+    chat.appendChild(am); chat.scrollTop = chat.scrollHeight;
+  }, 700);
+}
+
+document.getElementById('pm-send-btn').addEventListener('click', sendPm);
+document.getElementById('pminput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPm(); }
+});
+
+function insertPm(t) { document.getElementById('pminput').value = t; document.getElementById('pminput').focus(); }
+document.getElementById('pm-p1').addEventListener('click', function() { insertPm('Build a LegalMD Precedent for UK employment tribunal claims'); });
+document.getElementById('pm-p2').addEventListener('click', function() { insertPm('Scaffold a new extension for criminal law'); });
+document.getElementById('pm-p3').addEventListener('click', function() { insertPm('Show me the RLPN JSON schema for this matter'); });
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+document.getElementById('tab-lkm').style.display = 'flex';
+tinput.focus();
+</script>
+</body>
+</html>
