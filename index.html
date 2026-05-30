@@ -120,6 +120,7 @@ html,body{height:100%;overflow:hidden;background:var(--vb);color:var(--vtext);fo
 .ec-btn{width:100%;padding:7px;border:none;border-radius:4px;font-family:var(--font-d);font-weight:600;font-size:12px;cursor:pointer;transition:all .2s;margin-top:4px}
 .ec-btn.install{background:var(--red);color:#fff}
 .ec-btn.install:hover{background:#c00}
+.ec-btn.install.locked{background:#3a3a3a;color:#555;cursor:not-allowed;pointer-events:none}
 .ec-btn.installed{background:var(--teal);color:#fff;cursor:default}
 .m-empty{text-align:center;padding:40px;color:var(--vdim)}
 .m-empty p{font-size:12px;margin-bottom:6px}
@@ -278,7 +279,7 @@ html,body{height:100%;overflow:hidden;background:var(--vb);color:var(--vtext);fo
 .pm-ctx-card{background:#0f0f16;border:1px solid #181820;border-radius:4px;padding:9px;margin-bottom:6px}
 .pm-ctx-key{font-family:var(--font-m);font-size:9px;color:#3a3a3a;margin-bottom:2px}
 .pm-ctx-val{font-size:11px;color:#777}
-.pm-ctx-val.kb{color:var(--sky);font-family:var(--font-m);font-size:10px}
+.pm-ctx-val.kb{color:var(--sky);font-family:var(--font-m);font-size:10px;white-space:pre-line}
 .pm-prompts{margin-top:11px}
 .pm-pi{background:#0f0f16;border:1px solid #181820;border-radius:4px;padding:7px;margin-bottom:5px;cursor:pointer;transition:border-color .15s}
 .pm-pi:hover{border-color:#2a2a4a}
@@ -301,6 +302,37 @@ html,body{height:100%;overflow:hidden;background:var(--vb);color:var(--vtext);fo
 .pm-send:hover{background:#c00}
 .pm-send svg{width:13px;height:13px;color:#fff}
 .pm-hint{font-family:var(--font-m);font-size:9px;color:#1a1a1a;text-align:center;margin-top:5px}
+.pm-run{background:#060610;border:1px solid #1e1e2e;border-radius:5px;padding:10px 12px;margin-top:8px}
+.pm-run-title{font-family:var(--font-m);font-size:9px;color:var(--sky);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.pm-step{display:flex;align-items:flex-start;gap:8px;font-family:var(--font-m);font-size:10px;color:#444;padding:3px 0;transition:color .2s}
+.pm-step.active{color:var(--amber)}
+.pm-step.done{color:var(--teal)}
+.pm-step-ic{width:14px;flex-shrink:0;text-align:center}
+.pm-research{background:#060610;border:1px solid #1e1e2e;border-radius:5px;padding:11px;margin-top:8px}
+.pm-research-h{font-family:var(--font-d);font-weight:600;font-size:12px;color:#fff;margin-bottom:6px}
+.pm-research-p{font-size:11px;color:#999;line-height:1.55;margin-bottom:8px}
+.pm-findings{list-style:none;margin:0 0 10px;padding:0}
+.pm-findings li{font-size:11px;color:#aaa;padding:4px 0 4px 12px;border-left:2px solid #2a2a3a;line-height:1.45;margin-bottom:4px}
+.pm-findings li strong{color:#ccc;font-weight:500}
+.pm-src-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pm-src-link{font-family:var(--font-m);font-size:9px;padding:3px 8px;border-radius:3px;background:rgba(75,170,200,.08);color:var(--sky);border:1px solid rgba(75,170,200,.2);cursor:pointer;transition:all .15s}
+.pm-src-link:hover{background:rgba(75,170,200,.15);border-color:var(--sky)}
+.pm-deliver{background:#0a0a12;border:1px solid #1e2a1e;border-radius:5px;padding:11px;margin-top:8px}
+.pm-deliver-h{font-family:var(--font-d);font-weight:600;font-size:12px;color:#fff;margin-bottom:2px}
+.pm-deliver-meta{font-family:var(--font-m);font-size:9px;color:#444;margin-bottom:8px}
+.pm-deliver-preview{font-family:var(--font-m);font-size:10px;color:#888;line-height:1.55;max-height:120px;overflow-y:auto;padding:8px;background:#060610;border-radius:4px;border:1px solid #181820;margin-bottom:9px}
+.pm-deliver-preview::-webkit-scrollbar{width:3px}
+.pm-deliver-preview::-webkit-scrollbar-thumb{background:#333}
+.pm-add-matter{width:100%;padding:6px;border:none;border-radius:4px;background:var(--red);color:#fff;font-family:var(--font-d);font-weight:600;font-size:11px;cursor:pointer}
+.pm-add-matter:hover{background:#c00}
+.pm-add-matter.added{background:var(--teal);cursor:default}
+.pm-typing{font-family:var(--font-m);font-size:10px;color:#333;font-style:italic}
+.modal-ov.src{z-index:1100}
+.modal.src-modal{width:min(520px,92vw);max-height:85vh;display:flex;flex-direction:column}
+.modal.src-modal .modal-body{flex:1;overflow-y:auto;font-size:11px;color:#bbb;line-height:1.6;margin-bottom:12px}
+.modal.src-modal .modal-body::-webkit-scrollbar{width:3px}
+.modal.src-cite{font-family:var(--font-m);font-size:10px;color:var(--sky);margin-bottom:10px;padding:8px;background:#1a1a1a;border-radius:4px;border-left:2px solid var(--sky)}
+.modal-src-type{font-family:var(--font-m);font-size:9px;color:var(--vdim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -339,7 +371,7 @@ html,body{height:100%;overflow:hidden;background:var(--vb);color:var(--vtext);fo
       <div class="dd-item">Extensions<span class="sc">⌘⇧X</span></div>
       <div class="dd-item">Matters<span class="sc">⌘⇧M</span></div>
       <div class="dd-sep"></div>
-      <div class="dd-item dd-pm" onclick="enterPM()">⚡ Switch to Practice Mode<span class="sc">⌘⇧P</span></div>
+      <div class="dd-item dd-pm" onclick="event.stopPropagation();enterPM()">⚡ Switch to Practice Mode<span class="sc">⌘⇧P</span></div>
     </div>
   </div>
   <div class="mb-item" onclick="toggleDD('mg',this)">Go
@@ -425,6 +457,7 @@ html,body{height:100%;overflow:hidden;background:var(--vb);color:var(--vtext);fo
         <svg class="ti-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         <span class="ti-name" style="font-size:11px">Bundle Index</span>
       </div>
+      <div id="sb-pm-docs"></div>
     </div>
   </div>
 
@@ -489,7 +522,7 @@ html,body{height:100%;overflow:hidden;background:var(--vb);color:var(--vtext);fo
                 <span class="risk-badge">LOW RISK</span>
                 <div class="risk-desc">Stores notes locally within the ILPE. No external data transfer. No API calls. No LKM dependency.</div>
               </div>
-              <button class="ec-btn install" id="scratch-btn">Install</button>
+              <button class="ec-btn install locked" id="scratch-btn" type="button" disabled title="Install a knowledge base first (lkm install @UK-EW/immigration)">Install</button>
             </div>
             <div class="ec">
               <div class="ec-head">
@@ -577,7 +610,7 @@ html,body{height:100%;overflow:hidden;background:var(--vb);color:var(--vtext);fo
               <div class="mat-mi">Jurisdiction: <span>UK-EW</span></div>
               <div class="mat-mi">Adviser: <span>A. Osei (OISC Level 3)</span></div>
               <div class="mat-mi">Opened: <span>12 May 2026</span></div>
-              <div class="mat-mi">Documents: <span>3</span></div>
+              <div class="mat-mi">Documents: <span id="mat-doc-count">3</span></div>
             </div>
             <div class="mat-footer">
               <div style="display:flex;gap:5px">
@@ -631,6 +664,7 @@ html,body{height:100%;overflow:hidden;background:var(--vb);color:var(--vtext);fo
               </div>
               <span class="f-badge f-clr" id="dd-bundle" style="display:none">✓</span>
             </div>
+            <div id="det-pm-docs"></div>
           </div>
           <div>
             <div class="lf-card">
@@ -771,16 +805,18 @@ html,body{height:100%;overflow:hidden;background:var(--vb);color:var(--vtext);fo
         <div class="pm-pi" id="pm-p1"><p>Build a LegalMD Precedent for employment tribunal claims</p></div>
         <div class="pm-pi" id="pm-p2"><p>Scaffold a criminal law extension</p></div>
         <div class="pm-pi" id="pm-p3"><p>Show RLPN JSON schema for this matter</p></div>
+        <div class="pm-pi" id="pm-p4"><p>Run multiplex country guidance research for this matter</p></div>
+        <div class="pm-pi" id="pm-p5"><p>Draft an internal case memo and add it to the matter</p></div>
       </div>
     </div>
     <div class="pm-main">
       <div class="pm-chat" id="pmchat">
-        <div class="pm-sys">Practice Mode — Legal Technologist Interface<br>Build extensions · Scaffold Precedents · Query the LKM registry</div>
-        <div class="pm-ast"><div class="pm-lbl">Redline</div>Welcome to Practice Mode. I have access to your current matter context and installed knowledge bases.<br><br>What would you like to build?</div>
+        <div class="pm-sys">Practice Mode — Legal Technologist Interface<br>Build extensions · Multiplex research · Draft matter documents</div>
+        <div class="pm-ast"><div class="pm-lbl">Redline</div>Welcome to Practice Mode. I can orchestrate multiplex research against your knowledge bases, open cited sources, and draft memos for the matter file.<br><br>Try the suggested prompts below, or ask in your own words.</div>
       </div>
       <div class="pm-ia">
         <div class="pm-ir">
-          <textarea class="pm-inp" id="pminput" placeholder="Ask Redline to build an extension, scaffold a Precedent, generate RLPN schema..." rows="1"></textarea>
+          <textarea class="pm-inp" id="pminput" placeholder="Research, draft memos, scaffold extensions, query RLPN..." rows="1"></textarea>
           <button class="pm-send" id="pm-send-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
         </div>
         <div class="pm-hint">Practice Mode is for legal technologists building on the Redline platform</div>
@@ -801,6 +837,18 @@ html,body{height:100%;overflow:hidden;background:var(--vb);color:var(--vtext);fo
   </div>
 </div>
 
+<div class="modal-ov src" id="source-modal-ov">
+  <div class="modal src-modal">
+    <div class="modal-src-type" id="source-modal-type">Source</div>
+    <div class="modal-title" id="source-modal-title">Source document</div>
+    <div class="modal-cite" id="source-modal-cite"></div>
+    <div class="modal-body" id="source-modal-body"></div>
+    <div class="modal-btns">
+      <button class="m-btn m-cancel" id="source-modal-close" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-ov" id="modal-ov">
   <div class="modal">
     <div class="modal-title">Dismiss Flag</div>
@@ -816,7 +864,7 @@ html,body{height:100%;overflow:hidden;background:var(--vb);color:var(--vtext);fo
 <div class="toast" id="toast"></div>
 
 <script>
-var S = { kb:false, ext:false, validated:false, crit:2, sig:1, pendingFlag:null, pendingCrit:false, scratchNotes:[] };
+var S = { kb:false, ext:false, validated:false, crit:2, sig:1, pendingFlag:null, pendingCrit:false, scratchNotes:[], pmBusy:false, pmResearchDone:false, pmDocs:{} };
 
 var bcMap = { lkm:'LKM Terminal', market:'Extensions Marketplace', matters:'Matters', detail:'Matters › RDL-2026-0042', editor:'Matters › RDL-2026-0042 › Asylum Appeal', scratchpad:'Extensions › Matter Scratchpad' };
 var tabMap = { lkm:'tab-lkm', market:'tab-market', matters:'tab-matters', detail:'tab-matters', editor:'tab-editor', scratchpad:'tab-scratchpad' };
@@ -866,6 +914,12 @@ function tLine(html, delay) {
 }
 
 async function runInstall() {
+  if (S.kb) {
+    await tLine('<span class="td">@UK-EW/immigration 2.3.1 is already installed.</span>', 80);
+    await tLine('<span class="td">Run </span><span class="ts">lkm list</span><span class="td"> or </span><span class="ts">lkm outdated</span><span class="td">.</span>', 80);
+    await tLine('', 80);
+    return;
+  }
   tinput.disabled = true;
   var lines = [
     [60,  '<span class="td">Resolving @UK-EW/immigration@latest...</span>'],
@@ -932,20 +986,64 @@ async function runInstall() {
   showToast('@UK-EW/immigration 2.3.1 \u2014 knowledge base installed');
 }
 
+function setDot(id, color) {
+  var el = document.getElementById(id);
+  if (el) el.className = (id.indexOf('dd-') === 0 ? 'dr-dot ' : 'fd-dot ') + color;
+}
+
+function syncFlagUI() {
+  var crit = S.crit, sig = S.sig, total = crit + sig;
+  document.getElementById('rp-crit').textContent = crit + ' Critical';
+  document.getElementById('rp-sig').textContent = sig + ' Significant';
+  document.getElementById('mat-crit').textContent = crit + ' Critical';
+  document.getElementById('mat-sig').textContent = sig + ' Significant';
+  document.getElementById('mat-crit').style.display = crit > 0 ? 'inline' : 'none';
+  document.getElementById('mat-sig').style.display = sig > 0 ? 'inline' : 'none';
+  document.getElementById('dd-crit').textContent = crit;
+  document.getElementById('dd-sig').textContent = sig;
+  document.getElementById('dd-crit').style.display = crit > 0 ? 'inline' : 'none';
+  document.getElementById('dd-sig').style.display = sig > 0 ? 'inline' : 'none';
+  document.getElementById('dd-ws').style.display = sig > 0 ? 'inline' : 'none';
+  document.getElementById('dd-bundle').style.display = S.validated ? 'inline' : 'none';
+  document.getElementById('si-fc').textContent = total;
+  document.getElementById('si-flags').style.display = S.validated && total > 0 ? 'flex' : 'none';
+  if (S.validated) {
+    document.getElementById('pm-flags').textContent = total > 0 ? (crit + ' Critical \u00B7 ' + sig + ' Significant') : 'No open flags';
+    if (total === 0) {
+      setDot('fd-matter', 'teal'); setDot('fd-doc1', 'teal'); setDot('fd-doc2', 'teal'); setDot('fd-doc3', 'teal');
+      setDot('dd-doc1', 'teal'); setDot('dd-doc2', 'teal'); setDot('dd-doc3', 'teal');
+    } else if (crit > 0) {
+      setDot('fd-matter', 'red'); setDot('fd-doc1', 'red');
+      setDot('fd-doc2', sig > 0 ? 'amber' : 'teal');
+      setDot('fd-doc3', 'teal');
+      setDot('dd-doc1', 'red');
+      setDot('dd-doc2', sig > 0 ? 'amber' : 'teal');
+      setDot('dd-doc3', 'teal');
+    } else {
+      setDot('fd-matter', 'amber'); setDot('fd-doc1', 'amber');
+      setDot('fd-doc2', 'amber'); setDot('fd-doc3', 'teal');
+      setDot('dd-doc1', 'amber');
+      setDot('dd-doc2', 'amber');
+      setDot('dd-doc3', 'teal');
+    }
+  }
+}
+
 function activateKB() {
   document.getElementById('sb-kb-empty').style.display = 'none';
   document.getElementById('sb-kb-core').style.display = 'flex';
   document.getElementById('sb-kb-imm').style.display = 'flex';
   document.getElementById('sb-kb-hint').style.display = 'none';
-  document.getElementById('fd-matter').className = 'fd-dot amber';
-  document.getElementById('fd-doc1').className = 'fd-dot amber';
-  document.getElementById('fd-doc2').className = 'fd-dot amber';
-  document.getElementById('fd-doc3').className = 'fd-dot sky';
+  setDot('fd-matter', 'amber');
+  setDot('fd-doc1', 'amber');
+  setDot('fd-doc2', 'amber');
+  setDot('fd-doc3', 'amber');
   document.getElementById('si-kb').textContent = '@UK-EW/immigration 2.3.1';
   document.getElementById('si-kb').style.color = 'var(--teal)';
   document.getElementById('mat-no-kb').style.display = 'none';
   document.getElementById('mat-kb-badge').style.display = 'flex';
   document.getElementById('mat-no-val').style.display = 'none';
+  document.getElementById('dd-no-kb').style.display = 'none';
   document.getElementById('lf-empty').style.display = 'none';
   document.getElementById('lf-core').style.display = 'flex';
   document.getElementById('lf-imm').style.display = 'flex';
@@ -957,6 +1055,10 @@ function activateKB() {
   document.getElementById('val-btn').className = 'tb-val rdy';
   document.getElementById('pm-kb').textContent = '@UK-EW/core 1.0.0\n@UK-EW/immigration 2.3.1';
   document.getElementById('pm-flags').textContent = 'Run validate to check';
+  var scratchBtn = document.getElementById('scratch-btn');
+  scratchBtn.disabled = false;
+  scratchBtn.classList.remove('locked');
+  scratchBtn.title = '';
 }
 
 async function runList() {
@@ -1006,7 +1108,7 @@ document.getElementById('msearch').addEventListener('input', function() {
 
 document.getElementById('scratch-btn').addEventListener('click', function() {
   var btn = this;
-  if (btn.classList.contains('installed')) return;
+  if (!S.kb || btn.classList.contains('installed')) return;
   btn.textContent = 'Installing...'; btn.disabled = true;
   setTimeout(function() {
     btn.textContent = 'Installed'; btn.className = 'ec-btn installed';
@@ -1059,22 +1161,8 @@ document.getElementById('val-btn').addEventListener('click', function() {
     document.getElementById('rp-flags').style.display = 'block';
     document.getElementById('rp-time').textContent = '30 May 2026 at 09:31 BST';
     document.getElementById('rp-counts').style.display = 'flex';
-    document.getElementById('mat-crit').style.display = 'inline';
-    document.getElementById('mat-sig').style.display = 'inline';
     document.getElementById('dd-no-kb').style.display = 'none';
-    document.getElementById('dd-crit').style.display = 'inline';
-    document.getElementById('dd-sig').style.display = 'inline';
-    document.getElementById('dd-ws').style.display = 'inline';
-    document.getElementById('dd-bundle').style.display = 'inline';
-    document.getElementById('fd-matter').className = 'fd-dot red';
-    document.getElementById('fd-doc1').className = 'fd-dot red';
-    document.getElementById('fd-doc2').className = 'fd-dot amber';
-    document.getElementById('fd-doc3').className = 'fd-dot teal';
-    document.getElementById('dd-doc1').className = 'dr-dot red';
-    document.getElementById('dd-doc2').className = 'dr-dot amber';
-    document.getElementById('dd-doc3').className = 'dr-dot teal';
-    document.getElementById('si-flags').style.display = 'flex';
-    document.getElementById('pm-flags').textContent = S.crit + ' Critical \u00B7 ' + S.sig + ' Significant';
+    syncFlagUI();
     showToast('Validation complete \u2014 3 flags found');
   }, 1400);
 });
@@ -1092,6 +1180,7 @@ setupDismiss('dis-btn-002', 'flag002', true);
 setupDismiss('dis-btn-003', 'flag003', false);
 
 document.getElementById('modal-cancel').addEventListener('click', function() {
+  document.getElementById('modal-input').style.borderColor = '';
   document.getElementById('modal-ov').classList.remove('show');
 });
 
@@ -1103,18 +1192,7 @@ document.getElementById('modal-confirm').addEventListener('click', function() {
   document.getElementById(S.pendingFlag).classList.add('dismissed');
   if (S.pendingCrit) S.crit = Math.max(0, S.crit - 1);
   else S.sig = Math.max(0, S.sig - 1);
-  document.getElementById('rp-crit').textContent = S.crit + ' Critical';
-  document.getElementById('rp-sig').textContent = S.sig + ' Significant';
-  document.getElementById('mat-crit').textContent = S.crit + ' Critical';
-  document.getElementById('mat-sig').textContent = S.sig + ' Significant';
-  document.getElementById('dd-crit').textContent = S.crit;
-  document.getElementById('dd-sig').textContent = S.sig;
-  var t = S.crit + S.sig;
-  document.getElementById('si-fc').textContent = t;
-  document.getElementById('pm-flags').textContent = S.crit + ' Critical \u00B7 ' + S.sig + ' Significant';
-  if (t === 0) { document.getElementById('fd-matter').className = 'fd-dot teal'; document.getElementById('fd-doc1').className = 'fd-dot teal'; }
-  else if (S.crit > 0) { document.getElementById('fd-matter').className = 'fd-dot red'; document.getElementById('fd-doc1').className = 'fd-dot red'; }
-  else { document.getElementById('fd-matter').className = 'fd-dot amber'; document.getElementById('fd-doc1').className = 'fd-dot amber'; }
+  syncFlagUI();
   showToast('Flag dismissed and recorded in audit trail');
 });
 
@@ -1130,25 +1208,280 @@ var pmR = {
   criminal: 'Scaffolding a criminal law extension:\n```yaml\nname: uk-ew/criminal/guilty-plea\nversion: 0.1.0\njurisdiction: UK-EW\n\nmandatory-clauses:\n  - defendant-details\n  - offence-basis\n  - factual-basis\n  - mitigation-summary\n```\nThis extension bundles its own templates and has no LKM dependency. Ready to publish to the marketplace.'
 };
 
-function sendPm() {
-  var inp = document.getElementById('pminput');
-  var txt = inp.value.trim(); if (!txt) return;
-  inp.value = '';
+var pmSources = {
+  'ut-cg': {
+    type: 'Upper Tribunal country guidance',
+    title: 'Country guidance — [COUNTRY REDACTED]',
+    cite: '[2024] UKUT 00000 (IAC) · Promulgated 14 March 2024 · Indexed in @UK-EW/immigration 2.3.1',
+    body: 'HEADNOTE: The Tribunal has considered the objective evidence on country conditions and the Appellant\'s individual circumstances. The guidance sets out the baseline risk profile for nationals returning to [COUNTRY REDACTED] and the categories of claimants who may face a real risk of persecution or serious harm.\n\nKEY FINDINGS:\n(1) State protection remains partial in conflict-affected regions;\n(2) Particularised claims require up-to-date CPIN corroboration;\n(3) Internal relocation analysis must be matter-specific.\n\n[Demo excerpt — full judgment text not reproduced.]'
+  },
+  'cpin': {
+    type: 'Home Office policy document',
+    title: 'Country Policy and Information Note — [COUNTRY REDACTED]',
+    cite: 'CPIN v3.2 · Published 2 April 2026 · Home Office · Synced to LKM 30 May 2026',
+    body: 'SECTION 2 — KEY EVENTS\nSignificant political developments since the last CPIN update. Advisers should cross-check with UT country guidance where a CG case exists.\n\nSECTION 5 — HUMAN RIGHTS\nTreatment of returned nationals; access to documentation; gender-specific risks.\n\nSECTION 8 — INTERNAL RELOCATION\nFactors relevant to reasonableness of internal relocation.\n\n[Demo excerpt — CPIN is illustrative only.]'
+  },
+  'nia-2022': {
+    type: 'Primary legislation',
+    title: 'Nationality and Borders Act 2022 — s.12 (qualification)',
+    cite: 'c.36 · Royal Assent 28 April 2022 · @UK-EW/immigration statutory index',
+    body: 'Section 12 amends the framework for determining refugee status and revokes the Qualification Regulations 2006 for most purposes. Skeleton arguments citing the 2006 Regulations without transitional provisions are flagged as non-compliant under current KB rules.\n\n[Demo excerpt.]'
+  },
+  'ftt-rules': {
+    type: 'Tribunal procedure',
+    title: 'First-tier Tribunal Procedure Rules — rule 2',
+    cite: 'SI 2014/2609 · Immigration and Asylum Chamber · @UK-EW/immigration',
+    body: 'Rule 2 requires sufficient particularisation of grounds. High-level generality in section 4 of an appeal skeleton may fail FTT best practice even where not strictly fatal.\n\n[Demo excerpt.]'
+  },
+  'ho-asylum': {
+    type: 'Home Office policy',
+    title: 'Asylum policy instruction — assessing protection claims',
+    cite: 'API Version 11 · Updated January 2026',
+    body: 'Guidance to caseworkers on assessing credibility, sur place claims, and documentary evidence. Relevant when drafting grounds responding to refusal reasons.\n\n[Demo excerpt.]'
+  }
+};
+
+function pmScroll() {
   var chat = document.getElementById('pmchat');
-  var um = document.createElement('div'); um.className = 'pm-usr';
-  um.innerHTML = '<div class="pm-lbl">You</div>' + txt;
-  chat.appendChild(um); chat.scrollTop = chat.scrollHeight;
-  setTimeout(function() {
-    var lower = txt.toLowerCase();
-    var resp = pmR.default;
-    if (lower.includes('rlpn') || lower.includes('json') || lower.includes('schema')) resp = pmR.rlpn;
-    if (lower.includes('criminal')) resp = pmR.criminal;
-    var am = document.createElement('div'); am.className = 'pm-ast';
-    var fmt = resp.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre>$2</pre>').replace(/\n/g, '<br>');
-    am.innerHTML = '<div class="pm-lbl">Redline</div>' + fmt;
-    chat.appendChild(am); chat.scrollTop = chat.scrollHeight;
-  }, 700);
+  chat.scrollTop = chat.scrollHeight;
 }
+
+function pmUserMsg(txt) {
+  var um = document.createElement('div');
+  um.className = 'pm-usr';
+  um.innerHTML = '<div class="pm-lbl">You</div>' + txt.replace(/</g, '&lt;');
+  document.getElementById('pmchat').appendChild(um);
+  pmScroll();
+}
+
+function pmAgentBlock(innerHtml) {
+  var am = document.createElement('div');
+  am.className = 'pm-ast';
+  am.innerHTML = '<div class="pm-lbl">Redline</div>' + innerHtml;
+  document.getElementById('pmchat').appendChild(am);
+  pmScroll();
+  return am;
+}
+
+function pmFormatText(resp) {
+  return resp.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre>$2</pre>').replace(/\n/g, '<br>');
+}
+
+function pmSetBusy(on) {
+  S.pmBusy = on;
+  document.getElementById('pminput').disabled = on;
+  document.getElementById('pm-send-btn').disabled = on;
+  document.getElementById('pm-send-btn').style.opacity = on ? '0.45' : '1';
+}
+
+function pmIntent(txt) {
+  var l = txt.toLowerCase();
+  if (/\b(multiplex|multi-plex|country guidance|research|cpin|investigat)\b/.test(l) || l.indexOf('country guidance') >= 0) return 'research';
+  if (/\b(memo|brief|internal|adviser)\b/.test(l) || l.indexOf('add to matter') >= 0 || /draft.*document/.test(l)) return 'memo';
+  if (l.indexOf('rlpn') >= 0 || l.indexOf('json') >= 0 || l.indexOf('schema') >= 0) return 'rlpn';
+  if (l.indexOf('criminal') >= 0) return 'criminal';
+  return 'default';
+}
+
+function pmRunOrchestration(title, steps, onComplete) {
+  var runId = 'pmrun-' + Date.now();
+  var html = '<div class="pm-run"><div class="pm-run-title">' + title + '</div><div id="' + runId + '"></div></div>';
+  var block = pmAgentBlock(html);
+  var container = block.querySelector('#' + runId);
+  var i = 0;
+
+  function addStep(label, state) {
+    var s = document.createElement('div');
+    s.className = 'pm-step ' + state;
+    var ic = state === 'done' ? '\u2713' : (state === 'active' ? '\u25CC' : '\u00B7');
+    s.innerHTML = '<span class="pm-step-ic">' + ic + '</span><span>' + label + '</span>';
+    container.appendChild(s);
+    pmScroll();
+    return s;
+  }
+
+  function next() {
+    if (i > 0) {
+      var prev = container.children[i - 1];
+      prev.className = 'pm-step done';
+      prev.querySelector('.pm-step-ic').textContent = '\u2713';
+    }
+    if (i >= steps.length) {
+      if (container.lastElementChild) {
+        container.lastElementChild.className = 'pm-step done';
+        container.lastElementChild.querySelector('.pm-step-ic').textContent = '\u2713';
+      }
+      setTimeout(function() { onComplete(block); }, 280);
+      return;
+    }
+    addStep(steps[i].label, 'active');
+    var delay = steps[i].delay;
+    setTimeout(function() { i++; next(); }, delay);
+  }
+  next();
+}
+
+function openSourceModal(id) {
+  var src = pmSources[id];
+  if (!src) return;
+  document.getElementById('source-modal-type').textContent = src.type;
+  document.getElementById('source-modal-title').textContent = src.title;
+  document.getElementById('source-modal-cite').textContent = src.cite;
+  document.getElementById('source-modal-body').textContent = src.body;
+  document.getElementById('source-modal-ov').classList.add('show');
+}
+
+function closeSourceModal() {
+  document.getElementById('source-modal-ov').classList.remove('show');
+}
+
+document.getElementById('source-modal-close').addEventListener('click', closeSourceModal);
+document.getElementById('source-modal-ov').addEventListener('click', function(e) {
+  if (e.target === this) closeSourceModal();
+});
+
+function pmResearchSummaryHtml() {
+  var kbNote = S.kb ? '@UK-EW/immigration 2.3.1' : 'no knowledge base (install recommended)';
+  var flagNote = S.validated ? (S.crit + S.sig) + ' open validation flag(s) mapped' : 'validation not yet run on skeleton';
+  return '<div class="pm-research">' +
+    '<div class="pm-research-h">Multiplex research brief</div>' +
+    '<div class="pm-research-p">RDL-2026-0042 \u00B7 Asylum appeal \u00B7 KB: ' + kbNote + ' \u00B7 ' + flagNote + '</div>' +
+    '<ul class="pm-findings">' +
+    '<li><strong>Country guidance gap:</strong> No UT CG citation in \u00A73 — aligns with Critical flag 001 on the skeleton.</li>' +
+    '<li><strong>Legislative drift:</strong> Qualification Regulations 2006 cited; NABA 2022 s.12 is controlling — flag 002.</li>' +
+    '<li><strong>Particularisation:</strong> \u00A74 grounds are generic; FTT Procedure Rules r.2 requires expansion — flag 003.</li>' +
+    '<li><strong>CPIN v3.2 (Apr 2026):</strong> Updated country conditions support a sur place / changed circumstances argument if evidence permits.</li>' +
+    '</ul>' +
+    '<div style="font-family:var(--font-m);font-size:9px;color:#444;margin-bottom:4px">SOURCES (demo — click to view)</div>' +
+    '<div class="pm-src-row">' +
+    '<span class="pm-src-link" data-src="ut-cg">UT country guidance</span>' +
+    '<span class="pm-src-link" data-src="cpin">CPIN v3.2</span>' +
+    '<span class="pm-src-link" data-src="nia-2022">NABA 2022 s.12</span>' +
+    '<span class="pm-src-link" data-src="ftt-rules">FTT Procedure r.2</span>' +
+    '<span class="pm-src-link" data-src="ho-asylum">HO asylum API</span>' +
+    '</div></div>' +
+    '<p style="font-size:11px;color:#555;margin-top:8px">Ask me to <em>draft an internal case memo</em> to add this research to the matter file.</p>';
+}
+
+function pmSimResearch() {
+  var steps = [
+    { label: 'Loading RLPN matter graph (RDL-2026-0042)', delay: 520 },
+    { label: 'Resolving knowledge bases via legalmd.lock', delay: 480 },
+    { label: 'Multiplex query: UT country guidance index', delay: 640 },
+    { label: 'Multiplex query: Home Office CPIN + asylum API', delay: 580 },
+    { label: 'Cross-mapping The Read flags to source provisions', delay: 720 },
+    { label: 'Synthesising research brief with citations', delay: 500 }
+  ];
+  if (!S.kb) steps.splice(1, 0, { label: 'Warning: running without @UK-EW/immigration — results may be incomplete', delay: 400 });
+
+  pmRunOrchestration('Orchestrating multiplex research', steps, function(block) {
+    var run = block.querySelector('.pm-run');
+    if (run) run.remove();
+    block.insertAdjacentHTML('beforeend', pmResearchSummaryHtml());
+    S.pmResearchDone = true;
+    pmSetBusy(false);
+    showToast('Research brief ready — open sources from Practice Mode');
+  });
+}
+
+function pmMemoPreviewText() {
+  var ref = S.pmResearchDone ? 'Incorporates multiplex research brief (5 sources)' : 'Standalone draft — run research for full citations';
+  return 'INTERNAL — ADVISER CASE MEMO\nRDL-2026-0042 | Asylum Appeal FTT\n\n1. PURPOSE\nStrategic note for skeleton v4 — address validation flags and country evidence.\n\n2. COUNTRY GUIDANCE\nUT CG citation required in \u00A73. CPIN v3.2 (Apr 2026) supports updated conditions argument.\n\n3. LEGISLATIVE UPDATE\nReplace Qualification Regulations 2006 refs with NABA 2022 / HC 590 framework.\n\n4. GROUNDS\nExpand \u00A74 with refusal-letter particularity per FTT Procedure Rules r.2.\n\n5. NEXT STEPS\n- Update skeleton v4\n- Re-run Validate\n- Consider supplementary witness statement\n\n— ' + ref;
+}
+
+function pmDeliverableHtml(docId, title, meta) {
+  return '<div class="pm-deliver" data-doc="' + docId + '">' +
+    '<div class="pm-deliver-h">' + title + '</div>' +
+    '<div class="pm-deliver-meta">' + meta + '</div>' +
+    '<div class="pm-deliver-preview">' + pmMemoPreviewText().replace(/\n/g, '<br>') + '</div>' +
+    '<button type="button" class="pm-add-matter" data-doc="' + docId + '" data-title="' + title.replace(/"/g, '&quot;') + '">Add to matter</button></div>';
+}
+
+function addPmMatterDoc(docId, title) {
+  if (S.pmDocs[docId]) return;
+  S.pmDocs[docId] = title;
+  var dotClass = S.validated ? (S.crit > 0 ? 'amber' : 'teal') : (S.kb ? 'amber' : '');
+  var dotHtml = dotClass ? '<div class="fd-dot ' + dotClass + '"></div>' : '<div class="fd-dot"></div>';
+  var row = document.createElement('div');
+  row.className = 'ti';
+  row.style.paddingLeft = '20px';
+  row.id = 'sb-' + docId;
+  row.innerHTML = '<div class="fd">' + dotHtml + '</div>' +
+    '<svg class="ti-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+    '<span class="ti-name" style="font-size:11px">' + title + '</span>';
+  document.getElementById('sb-pm-docs').appendChild(row);
+
+  var dr = document.createElement('div');
+  dr.className = 'dr';
+  dr.id = 'dr-' + docId;
+  dr.innerHTML = '<div class="dr-l"><div class="dr-dot' + (dotClass ? ' ' + dotClass : '') + '"></div>' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+    '<div><div class="dr-name">' + title + '</div><div class="dr-meta">Added via Practice Mode \u00B7 Today</div></div></div>' +
+    '<span class="f-badge f-clr">\u2713 New</span>';
+  document.getElementById('det-pm-docs').appendChild(dr);
+
+  var n = 3 + Object.keys(S.pmDocs).length;
+  document.getElementById('mat-doc-count').textContent = n;
+}
+
+function pmSimMemo() {
+  var steps = [
+    { label: 'Reading matter context + open flags', delay: 450 },
+    { label: S.pmResearchDone ? 'Importing multiplex research brief' : 'Querying KB for baseline provisions', delay: 550 },
+    { label: 'Drafting LegalMD internal memo structure', delay: 620 },
+    { label: 'Applying @UK-EW/immigration drafting conventions', delay: 480 },
+    { label: 'Generating preview for adviser review', delay: 400 }
+  ];
+
+  pmRunOrchestration('Orchestrating memo draft', steps, function(block) {
+    var run = block.querySelector('.pm-run');
+    if (run) run.remove();
+    block.insertAdjacentHTML('beforeend', pmDeliverableHtml('memo-research', 'Adviser Case Memo — Research Brief', 'LegalMD \u00B7 Internal \u00B7 Not filed with Tribunal'));
+    pmSetBusy(false);
+  });
+}
+
+function pmInstantReply(intent) {
+  var resp = pmR.default;
+  if (intent === 'rlpn') resp = pmR.rlpn;
+  if (intent === 'criminal') resp = pmR.criminal;
+  pmAgentBlock(pmFormatText(resp));
+  pmSetBusy(false);
+}
+
+function sendPm() {
+  if (S.pmBusy) return;
+  var inp = document.getElementById('pminput');
+  var txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = '';
+  pmUserMsg(txt);
+  var intent = pmIntent(txt);
+  pmSetBusy(true);
+
+  if (intent === 'research') {
+    setTimeout(pmSimResearch, 400);
+    return;
+  }
+  if (intent === 'memo') {
+    setTimeout(pmSimMemo, 400);
+    return;
+  }
+  setTimeout(function() { pmInstantReply(intent); }, 700);
+}
+
+document.getElementById('pmchat').addEventListener('click', function(e) {
+  var src = e.target.closest('.pm-src-link');
+  if (src) { openSourceModal(src.getAttribute('data-src')); return; }
+  var add = e.target.closest('.pm-add-matter');
+  if (!add || add.classList.contains('added')) return;
+  var docId = add.getAttribute('data-doc');
+  var title = add.getAttribute('data-title');
+  addPmMatterDoc(docId, title);
+  add.textContent = 'Added to matter';
+  add.classList.add('added');
+  showToast(title + ' added to RDL-2026-0042');
+});
 
 document.getElementById('pm-send-btn').addEventListener('click', sendPm);
 document.getElementById('pminput').addEventListener('keydown', function(e) {
@@ -1159,6 +1492,8 @@ function insertPm(t) { document.getElementById('pminput').value = t; document.ge
 document.getElementById('pm-p1').addEventListener('click', function() { insertPm('Build a LegalMD Precedent for UK employment tribunal claims'); });
 document.getElementById('pm-p2').addEventListener('click', function() { insertPm('Scaffold a new extension for criminal law'); });
 document.getElementById('pm-p3').addEventListener('click', function() { insertPm('Show me the RLPN JSON schema for this matter'); });
+document.getElementById('pm-p4').addEventListener('click', function() { insertPm('Run multiplex country guidance research for this matter'); });
+document.getElementById('pm-p5').addEventListener('click', function() { insertPm('Draft an internal case memo and add it to the matter'); });
 
 function showToast(msg) {
   var t = document.getElementById('toast');
